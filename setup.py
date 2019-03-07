@@ -47,7 +47,7 @@ def deploy():
         })
 
     print('KYC Registrar: ' + registrar_rcpt['contractAddress'])
-    print('Payment Handler: ' + registrar_rcpt['blockNumber'])
+    print('Payment Handler: ' + payment_rcpt['contractAddress'])
 
 
 commands = {
