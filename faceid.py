@@ -19,6 +19,6 @@ if __name__ == '__main__':
     if len(args) > 0:
         if args[0] == '--balance':
             try:
-                print(normalize_balance(request_balance(parceJson('person.json')['id'], args[1])))
+                print(*weighing(request_balance(parceJson('person.json')['id'], args[1])))
             except TypeError:
                 print("ID is not found")

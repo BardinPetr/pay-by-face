@@ -1,4 +1,5 @@
 from eth_account import Account
+from math import ceil
 from json import load
 from web3 import Web3
 import uuid
@@ -27,12 +28,10 @@ def get_private_key(uid, pin):
     return a.hex()
 
 
-def normalize_balance(balance):
-    names = ["wei", "kwei", "mwei", "gwei", "szabo", "finney", "poa"]
-    i = 1
-    for name in names:
-        r = balance / (1000 ** i)
-        i += 1
-        if r // 1 == 0:
-            return 
-        print()
+nominal = ['kwei', 'mwei', 'gwei', 'szabo', 'finney', 'poa']
+
+
+def weighing(val):
+    k = min(ceil(len(str(val)) / 3) - 1, 6)
+    val = round(int(val) / 10 ** (k * 3), 6)
+    return str(val).rstrip('0').rstrip('.'), nominal[k - 1] if k != 0 else ("poa" if val == 0 else "wei")
