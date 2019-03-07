@@ -39,7 +39,7 @@ def create_frames(file_name):
         cap.set(2, frame)
         cap = cv2.VideoCapture(file_name)
         try:
-            cv2.imwrite(str(i) + ".jpg", cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2GRAY))
+            cv2.imwrite(str(i) + ".jpg", cap.read()[1])
         except:
             f = open(str(i) + ".jpg", "w")
             f.close()
