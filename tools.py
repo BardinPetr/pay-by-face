@@ -3,6 +3,7 @@ from math import ceil
 from json import load
 from web3 import Web3
 import uuid
+import sha3
 
 
 def parceJson(file_path):
@@ -19,13 +20,19 @@ def toAddress(priv_key):
     return Account.privateKeyToAccount(prefix + priv_key).address
 
 
+def keccak256(data):
+    k = sha3.keccak_256()
+    k.update(data)
+    return k
+
+
 def get_private_key(uid, pin):
     pin = map(int, str(pin))
     u = uuid.UUID(uid)
-    a = Web3.sha3(text="")
+    a = keccak256("".encode())
     for _ in range(4):
-        a = Web3.sha3(a + u.bytes + pin.__next__().to_bytes(1, "little"))
-    return a.hex()
+        a = keccak256(a.digest() + u.bytes + pin.__next__().to_bytes(1, "little"))
+    return a.hexdigest()
 
 
 nominal = ['wei', 'kwei', 'mwei', 'gwei', 'szabo', 'finney', 'poa']
