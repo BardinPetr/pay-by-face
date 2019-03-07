@@ -19,8 +19,6 @@ class ContractWrapper:
 
         contract = w3.eth.contract(**kwargs)
 
-        print(gas_price)
-
         # setup constructor
         def construct(*args, **kwargs):
             tx = contract.constructor(*args, **kwargs).buildTransaction({

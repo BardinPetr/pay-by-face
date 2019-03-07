@@ -45,7 +45,7 @@ def deploy():
         dump({
             'registrar': { 'address': registrar_rcpt['contractAddress'], 'startBlock': registrar_rcpt['blockNumber'] },
             'payments': { 'address': payment_rcpt['contractAddress'], 'startBlock': payment_rcpt['blockNumber'] }
-        })
+        }, f)
 
     print('KYC Registrar: ' + registrar_rcpt['contractAddress'])
     print('Payment Handler: ' + payment_rcpt['contractAddress'])
