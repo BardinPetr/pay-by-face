@@ -52,7 +52,10 @@ def create_frames(file_name):
 
 
 def update_person(video):
-    f = open("1.jpg")
+    try:
+        f = open("1.jpg")
+    except:
+        print(video)
     if create_frames(video):
         exist_group()
         res = cf.person.create(person_group_id=g_id, name="anonymous")
