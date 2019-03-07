@@ -49,7 +49,7 @@ def create_frames(file_name):
 def update_person(video):
     exist_group()
     create_frames(video)
-    person_id = cf.person.create(person_group_id=g_id, name="")["personId"]
+    person_id = cf.person.create(person_group_id=g_id, name="anonymous")["personId"]
     face_ids = set()
     for i in range(1, 6):
         try:
