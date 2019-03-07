@@ -44,7 +44,6 @@ def create_frames(file_name):
             f = open(str(i) + ".jpg", "w")
             f.close()
         res = cf.face.detect(str(i) + ".jpg")
-        print(res)
         if not res:
             clear(i)
             return False
