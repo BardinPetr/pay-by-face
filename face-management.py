@@ -65,6 +65,7 @@ def update_person(video):
             else:
                 break
         print("5 frames extracted\nPersonId:", person_id + "\nFaceIds\n=======" + "\n" + "\n".join(face_ids))
+        clear(5)
     else:
         print("Video does not contain any face")
 
@@ -155,11 +156,9 @@ if __name__ == "__main__":
     check_all_right()
     if sys.argv[1] == "--simple-add":
         update_person(sys.argv[2])
-        clear(5)
     elif sys.argv[1] == "--del":
         delete_person(sys.argv[2])
     elif sys.argv[1] == "--train":
         train_group()
     elif sys.argv[1] == "--identify":
         identify_person(sys.argv[2])
-        clear(5)
