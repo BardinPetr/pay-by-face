@@ -19,6 +19,8 @@ class ContractWrapper:
 
         contract = w3.eth.contract(**kwargs)
 
+        print(gas_price)
+
         # setup constructor
         def construct(*args, **kwargs):
             tx = contract.constructor(*args, **kwargs).buildTransaction({
@@ -39,27 +41,31 @@ class ContractWrapper:
         # setup contract methods
         for elem in kwargs['abi']:
             if 'name' in elem:
-                # choose call or buildTransaction
-                if elem['stateMutability'] == 'view':
-                    def funct(name):
-                        def func(*args, **kwargs):
-                            return getattr(contract.functions, name)(*args, **kwargs).call()
-                        return func
+                try:
+                    # choose call or buildTransaction
+                    if elem['stateMutability'] == 'view':
+                        def funct(name):
+                            def func(*args, **kwargs):
+                                return getattr(contract.functions, name)(*args, **kwargs).call()
+                            return func
 
-                elif elem['stateMutability'] == 'nonpayable':
-                    def funct(name):
-                        def func(*args, **kwargs):
-                            tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
-                                'gasPrice': gas_price,
-                                'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
-                                })
+                    elif elem['stateMutability'] == 'nonpayable':
+                        def funct(name):
+                            def func(*args, **kwargs):
+                                tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
+                                    'gasPrice': gas_price,
+                                    'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
+                                    })
 
-                            signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
-                            tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
+                                signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+                                tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
-                            tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
-                            return tx_receipt
-                        return func
+                                return tx_receipt
+                            return func
 
-                setattr(self, elem['name'], funct(elem['name']))
+                    setattr(self, elem['name'], funct(elem['name']))
+
+                except:
+                    pass
