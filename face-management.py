@@ -60,6 +60,8 @@ def update_person(video):
         face_ids = set()
         for i in range(1, 6):
             res = check_all_right(cf.person.add_face(person_id=person_id, person_group_id=g_id, image=(str(i) + ".jpg")))
+            print(res)
+            print(cf.face.detect(str(i) + ".jpg"))
             if res:
                 face_ids.add(res["persistedFaceId"])
             else:
