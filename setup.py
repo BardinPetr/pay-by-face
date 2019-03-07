@@ -34,7 +34,7 @@ payment_BYTECODE = parceJson('contracts/payment/bytecode.json')['object']
 # === Commands === #
 def deploy():
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, bytecode=registrar_BYTECODE)
-    payment = ContractWrapper(w3=web3, abi=ABI, bytecode=BYTECODE)
+    payment = ContractWrapper(w3=web3, abi=payment_ABI, bytecode=payment_BYTECODE)
 
     registrar_rcpt = contract.constructor()
     payment_rcpt = payment.constructor()
