@@ -28,10 +28,10 @@ def get_private_key(uid, pin):
     return a.hex()
 
 
-nominal = ['kwei', 'mwei', 'gwei', 'szabo', 'finney', 'poa']
+nominal = ['wei', 'kwei', 'mwei', 'gwei', 'szabo', 'finney', 'poa']
 
 
 def weighing(val):
     k = min(ceil(len(str(val)) / 3) - 1, 6)
     val = round(int(val) / 10 ** (k * 3), 6)
-    return str(val).rstrip('0').rstrip('.'), nominal[k - 1] if k != 0 else ("poa" if val == 0 else "wei")
+    return str(val).rstrip('0').rstrip('.'), nominal[k] if val != 0 else "poa"
