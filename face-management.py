@@ -16,7 +16,7 @@ def parse_json(file_path):
         return None
 
 
-api_data = parse_json("msfaceapi.json")
+api_data = parse_json("faceapi.json")
 key = api_data["key"]
 base_url = api_data["serviceUrl"]
 cf.Key.set(key)
