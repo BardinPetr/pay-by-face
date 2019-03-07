@@ -135,7 +135,7 @@ def identify_person(video):
         print('The person is "' + res['name'] + '"')
 
 
-def check_all_right(func=cf.face.detect("")):
+def check_all_right(func=cf.face.detect()):
     try:
         return func
     except ConnectionError:
