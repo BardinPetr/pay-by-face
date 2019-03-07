@@ -2,6 +2,7 @@
 
 ### Put your code below this comment ###
 import sys
+from requests import get as getData
 from ethWrapper import ContractWrapper, gas_price, user_priv_key
 from tools import parceJson, toAddress
 from web3 import Web3, HTTPProvider
@@ -46,7 +47,7 @@ def deploy():
         })
 
     print('KYC Registrar: ' + registrar_rcpt['contractAddress'])
-    print('Payment Handler: ' + registrar_rcpt['blockNumber'])
+    print('Payment Handler: ' + payment_rcpt['contractAddress'])
 
 
 commands = {
@@ -56,5 +57,5 @@ commands = {
 
 
 # === Entry point === # 
-if name == '__main__':
-    comands(sys.args[1])(*sys.args[1:])
+if __name__ == '__main__':
+    commands[sys.argv[1][1:]](*sys.argv[1:])
