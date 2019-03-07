@@ -3,7 +3,7 @@
 ### Put your code below this comment ###
 import sys
 from ethWrapper import ContractWrapper, gas_price, user_priv_key
-from tools import parceJson, getAccount
+from tools import parceJson, toAddress
 from web3 import Web3, HTTPProvider
 from json import dump
 
@@ -42,7 +42,7 @@ def deploy():
     with open('registrar.json', 'w') as f:
         dump({
             'registrar': { 'address': registrar_rcpt['contractAddress'], 'startBlock': registrar_rcpt['blockNumber'] },
-            'payment': { 'address': payment_rcpt['contractAddress'], 'startBlock': payment_rcpt['blockNumber'] }
+            'payments': { 'address': payment_rcpt['contractAddress'], 'startBlock': payment_rcpt['blockNumber'] }
         })
 
     print('KYC Registrar: ' + registrar_rcpt['contractAddress'])
