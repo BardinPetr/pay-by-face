@@ -43,7 +43,7 @@ def create_frames(file_name):
         except:
             f = open(str(i) + ".jpg", "w")
             f.close()
-        res = check_all_right(cf.face.detect(str(i) + ".jpg"))
+        res = cf.face.detect(str(i) + ".jpg")
         if not res:
             clear(i)
             return False
@@ -52,10 +52,6 @@ def create_frames(file_name):
 
 
 def update_person(video):
-    try:
-        f = open("1.jpg")
-    except:
-        print(video)
     if create_frames(video):
         exist_group()
         res = cf.person.create(person_group_id=g_id, name="anonymous")
