@@ -1,13 +1,31 @@
 [
 	{
 		"constant": false,
-		"inputs": [
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
 			{
-				"name": "phone",
-				"type": "string"
+				"name": "",
+				"type": "address"
 			}
 		],
-		"name": "add",
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "isOwner",
 		"outputs": [
 			{
 				"name": "",
@@ -15,24 +33,19 @@
 			}
 		],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
 		"constant": false,
 		"inputs": [
 			{
-				"name": "phone",
-				"type": "string"
+				"name": "newOwner",
+				"type": "address"
 			}
 		],
-		"name": "del",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"name": "transferOwnership",
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -44,22 +57,20 @@
 		"type": "constructor"
 	},
 	{
-		"constant": true,
+		"anonymous": false,
 		"inputs": [
 			{
-				"name": "phone",
-				"type": "string"
-			}
-		],
-		"name": "get",
-		"outputs": [
+				"indexed": true,
+				"name": "previousOwner",
+				"type": "address"
+			},
 			{
-				"name": "",
+				"indexed": true,
+				"name": "newOwner",
 				"type": "address"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
+		"name": "OwnershipTransferred",
+		"type": "event"
 	}
 ]
