@@ -5,6 +5,7 @@ import cognitive_face as cf
 import cv2
 import sys
 import os
+import time
 
 
 def parse_json(file_path):
@@ -35,7 +36,7 @@ def create_frames(file_name):
         elif i == 5:
             frame = length - 1
         else:
-            frame = step * i - 1
+            frame = step * (i - 1)
         cap.set(2, frame)
         cap = cv2.VideoCapture(file_name)
         try:
@@ -43,7 +44,7 @@ def create_frames(file_name):
         except:
             f = open(str(i) + ".jpg", "w")
             f.close()
-        res = cf.face.detect(str(i) + ".jpg")
+        res = check_all_right(cf.face.detect(str(i) + ".jpg"))
         if not res:
             clear(i)
             return False
@@ -147,6 +148,9 @@ def check_all_right(func=cf.person_group.lists()):
             if e.status_code == 401:
                 print("Incorrect subscription key")
                 exit()
+            elif e.status_code == 429:
+                if hasattr(e, 'message'):
+                    time.sleep(int(e.message.split("Try again in ")[1].split()[0]))
         elif hasattr(e, 'code'):
             if e.code == 5:
                 exit()
