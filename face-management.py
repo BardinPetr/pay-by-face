@@ -43,27 +43,34 @@ def create_frames(file_name):
         except:
             f = open(str(i) + ".jpg", "w")
             f.close()
+        res = check_all_right(cf.face.detect(str(i) + ".jpg"))
+        if not res:
+            clear(i)
+            return False
         cap.release()
+    return True
 
 
 def update_person(video):
-    exist_group()
-    create_frames(video)
-    person_id = cf.person.create(person_group_id=g_id, name="anonymous")["personId"]
-    face_ids = set()
-    for i in range(1, 6):
-        try:
-            face_ids.add(cf.person.add_face(person_id=person_id, person_group_id=g_id, image=(str(i) + ".jpg"))["persistedFaceId"])
-        except:
-            break
-    if len(face_ids) == 5:
+    if create_frames(video):
+        exist_group()
+        res = cf.person.create(person_group_id=g_id, name="anonymous")
+        if res:
+            person_id = res["personId"]
+        face_ids = set()
+        for i in range(1, 6):
+            res = check_all_right(cf.person.add_face(person_id=person_id, person_group_id=g_id, image=(str(i) + ".jpg")))
+            if res:
+                face_ids.add(res["persistedFaceId"])
+            else:
+                break
         print("5 frames extracted\nPersonId:", person_id + "\nFaceIds\n=======" + "\n" + "\n".join(face_ids))
     else:
         print("Video does not contain any face")
 
 
-def clear():
-    for i in range(1, 6):
+def clear(to):
+    for i in range(1, to + 1):
         os.remove(str(i) + ".jpg")
 
 
@@ -77,22 +84,26 @@ def exist_group():
 def delete_person(name):
     exist_group()
     flag = False
-    for req in cf.person.lists(g_id):
-        if req["name"] == name:
-            flag = True
-            person_id = req["personId"]
-            break
-    if flag:
-        cf.person.delete(person_group_id=g_id, person_id=person_id)
-        print("Person with id", person_id, "deleted")
-    else:
-        print('No person with name "' + name + '"')
+    res = check_all_right(cf.person.lists(g_id))
+    if res:
+        for req in res:
+            if req["name"] == name:
+                flag = True
+                person_id = req["personId"]
+                break
+        if flag:
+            check_all_right(cf.person.delete(person_group_id=g_id, person_id=person_id))
+            print("Person with id", person_id, "deleted")
+        else:
+            print('No person with name "' + name + '"')
 
 
 def train_group():
     exist_group()
-    cf.person_group.train(g_id)
-    print("Training task for", len(cf.person.lists(g_id)), "persons started")
+    check_all_right(cf.person_group.train(g_id))
+    res = check_all_right(cf.person.lists(g_id))
+    if res:
+        print("Training task for", len(res), "persons started")
 
 
 def identify_person(video):
@@ -119,12 +130,14 @@ def identify_person(video):
         except:
             print("The system is not ready yet")
             return
-    print('The person is "' + cf.person.get(person_group_id=g_id, person_id=candidate)['name'] + '"')
+    res = check_all_right(cf.person.get(person_group_id=g_id, person_id=candidate))
+    if res:
+        print('The person is "' + res['name'] + '"')
 
 
-def check_all_right():
+def check_all_right(func=cf.face.detect("")):
     try:
-        print(cf.face.detect(""))
+        return func
     except ConnectionError:
         print("No connection to MS Face API provider")
         exit(5)
@@ -142,11 +155,11 @@ if __name__ == "__main__":
     check_all_right()
     if sys.argv[1] == "--simple-add":
         update_person(sys.argv[2])
-        clear()
+        clear(5)
     elif sys.argv[1] == "--del":
         delete_person(sys.argv[2])
     elif sys.argv[1] == "--train":
         train_group()
     elif sys.argv[1] == "--identify":
         identify_person(sys.argv[2])
-        clear()
+        clear(5)
