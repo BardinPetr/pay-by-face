@@ -41,7 +41,7 @@ def deploy():
 
     with open('registrar.json', 'w') as f:
         dump({
-            'registrar': { 'address': registrar_rcpt['contractAddress'], 'startBlock': registrar_rcpt['blockNumber'] }
+            'registrar': { 'address': registrar_rcpt['contractAddress'], 'startBlock': registrar_rcpt['blockNumber'] },
             'payment': { 'address': payment_rcpt['contractAddress'], 'startBlock': payment_rcpt['blockNumber'] }
         }
 
