@@ -27,7 +27,7 @@ g_id = api_data["groupId"]
 def create_frames(file_name):
     cap = cv2.VideoCapture(file_name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    step = length // 5
+    step = length // 4
     cap.release()
     for i in range(1, 6):
         if i == 1:
@@ -43,7 +43,7 @@ def create_frames(file_name):
         except:
             f = open(str(i) + ".jpg", "w")
             f.close()
-        res = cf.face.detect(str(i) + ".jpg")
+        res = check_all_right(cf.face.detect(str(i) + ".jpg"))
         if not res:
             clear(i)
             return False
