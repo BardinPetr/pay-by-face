@@ -25,8 +25,8 @@ cf.BaseUrl.set(base_url)
 g_id = api_data["groupId"]
 
 
-def create_frames(file_name):
-    cap = cv2.VideoCapture(file_name)
+def create_frames(video):
+    cap = cv2.VideoCapture(video)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     if length < 5:
         return False
@@ -40,7 +40,7 @@ def create_frames(file_name):
         else:
             frame = step * (i - 1)
         cap.set(2, frame)
-        cap = cv2.VideoCapture(file_name)
+        cap = cv2.VideoCapture(video)
         try:
             cv2.imwrite(str(i) + ".jpg", cap.read()[1])
         except:
@@ -57,18 +57,19 @@ def create_frames(file_name):
 def update_person(video):
     if create_frames(video):
         exist_group()
-        res = cf.person.create(person_group_id=g_id, name="anonymous")
+        res = check_all_right(cf.person.create(person_group_id=g_id, name="anonymous"))
         if res:
             person_id = res["personId"]
-        face_ids = set()
-        for i in range(1, 6):
-            res = check_all_right(cf.person.add_face(person_id=person_id, person_group_id=g_id, image=(str(i) + ".jpg")))
-            if res:
-                face_ids.add(res["persistedFaceId"])
-            else:
-                break
-        print("5 frames extracted\nPersonId:", person_id + "\nFaceIds\n=======" + "\n" + "\n".join(face_ids))
-        clear(5)
+            face_ids = set()
+            for i in range(1, 6):
+                res = check_all_right(cf.person.add_face(person_id=person_id, person_group_id=g_id,
+                                                         image=(str(i) + ".jpg")))
+                if res:
+                    face_ids.add(res["persistedFaceId"])
+                else:
+                    break
+            print("5 frames extracted\nPersonId:", person_id + "\nFaceIds\n=======" + "\n" + "\n".join(face_ids))
+            clear(5)
     else:
         print("Video does not contain any face")
 
@@ -80,63 +81,89 @@ def clear(to):
 
 def exist_group():
     try:
-        cf.person_group.get(g_id)
+        check_all_right(cf.person_group.get(g_id))
     except:
-        cf.person_group.create(g_id)
+        check_all_right(cf.person_group.create(g_id))
 
 
-def delete_person(name):
+def delete_person(person_id):
     exist_group()
-    flag = False
     res = check_all_right(cf.person.lists(g_id))
     if res:
-        for req in res:
-            if req["name"] == name:
-                flag = True
-                person_id = req["personId"]
-                break
-        if flag:
+        if person_id in res:
             check_all_right(cf.person.delete(person_group_id=g_id, person_id=person_id))
             print("Person with id", person_id, "deleted")
         else:
-            print('No person with name "' + name + '"')
+            print('No person with id "' + person_id + '"')
 
 
 def train_group():
     exist_group()
-    check_all_right(cf.person_group.train(g_id))
     res = check_all_right(cf.person.lists(g_id))
     if res:
+        check_all_right(cf.person_group.train(g_id))
         print("Training task for", len(res), "persons started")
 
 
-def identify_person(video):
+def get_predict(simple=True):
     exist_group()
-    create_frames(video)
-    for i in range(1, 6):
-        try:
-            new_candidate = list(filter(lambda x: x["confidence"] >= 0.5,
-                                        cf.face.identify(face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
-                                                         person_group_id=g_id)[0]["candidates"]))
-            if new_candidate:
-                if i == 1:
-                    candidate = new_candidate[0]["personId"]
-                else:
-                    if candidate != new_candidate[0]["personId"]:
+    if simple:
+        pass
+    else:
+        pass
+
+
+
+def find_person(video, simple=True):
+    exist_group()
+    if simple:
+        if create_frames(video):
+            for i in range(1, 6):
+                try:
+                    new_candidate = list(filter(lambda x: x["confidence"] >= 0.5,
+                                                cf.face.identify(face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
+                                                                 person_group_id=g_id)[0]["candidates"]))
+                    if new_candidate:
+                        if i == 1:
+                            candidate = new_candidate[0]["personId"]
+                        else:
+                            if candidate != new_candidate[0]["personId"]:
+                                print("The person cannot be identified")
+                                return
+                    else:
                         print("The person cannot be identified")
                         return
-            else:
-                print("The person cannot be identified")
-                return
-        except IndexError:
+                except IndexError:
+                    print("The person cannot be identified")
+                    return
+                except:
+                    print("The system is not ready yet")
+                    return
+            res = check_all_right(cf.person.get(person_group_id=g_id, person_id=candidate))
+            if res:
+                open("actions.json", "w").write(str({"id": res["personId"]}))
+        else:
             print("The person cannot be identified")
-            return
-        except:
-            print("The system is not ready yet")
-            return
-    res = check_all_right(cf.person.get(person_group_id=g_id, person_id=candidate))
+    else:
+        pass
+
+
+def is_trained():
+    res = check_all_right(cf.person_group.get_status(g_id))
     if res:
-        print('The person is "' + res['name'] + '"')
+        if res["status"] == "failed":
+            return False
+        else:
+            return True
+    else:
+        return False
+
+
+def get_persons():
+    res = check_all_right(cf.person.lists(person_group_id=g_id))
+    if res:
+        for i in res:
+            print(i)
 
 
 def check_all_right(func=cf.person_group.lists()):
@@ -153,6 +180,8 @@ def check_all_right(func=cf.person_group.lists()):
             elif e.status_code == 429:
                 if hasattr(e, 'message'):
                     time.sleep(int(e.message.split("Try again in ")[1].split()[0]))
+            elif e.status_code == 404:
+                return False
         elif hasattr(e, 'code'):
             if e.code == 5:
                 exit()
@@ -164,7 +193,9 @@ if __name__ == "__main__":
         update_person(sys.argv[2])
     elif sys.argv[1] == "--del":
         delete_person(sys.argv[2])
+    elif sys.argv[1] == "--list":
+        get_persons()
     elif sys.argv[1] == "--train":
         train_group()
-    elif sys.argv[1] == "--identify":
-        identify_person(sys.argv[2])
+    elif sys.argv[1] == "--find":
+        find_person(sys.argv[2], os.path.exists("actions.json"))
