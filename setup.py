@@ -58,4 +58,4 @@ commands = {
 
 # === Entry point === # 
 if __name__ == '__main__':
-    commands[sys.argv[1][1:]](*sys.argv[1:])
+    commands[sys.argv[1][2:]](*sys.argv[1:])
