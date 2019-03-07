@@ -28,6 +28,8 @@ g_id = api_data["groupId"]
 def create_frames(file_name):
     cap = cv2.VideoCapture(file_name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    if length < 5:
+        return False
     step = length // 4
     cap.release()
     for i in range(1, 6):
