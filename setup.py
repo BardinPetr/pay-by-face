@@ -37,7 +37,7 @@ def deploy():
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, bytecode=registrar_BYTECODE)
     payment = ContractWrapper(w3=web3, abi=payment_ABI, bytecode=payment_BYTECODE)
 
-    registrar_rcpt = contract.constructor()
+    registrar_rcpt = registrar.constructor()
     payment_rcpt = payment.constructor()
 
     with open('registrar.json', 'w') as f:
