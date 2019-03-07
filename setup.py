@@ -20,15 +20,17 @@ web3 = Web3(HTTPProvider(network['rpcUrl']))
 user_priv_key = network['privKey']
 web3.eth.defaultAccount = toAddress(network['privKey'])
 
-ABI = parceJson('contract/ABI.json')
-BYTECODE = parceJson('contract/bytecode.json')['object']
+
+# TODO:  payment
+registrar_ABI = parceJson('contracts/registrar/ABI.json')
+registrar_BYTECODE = parceJson('contracts/registrar/bytecode.json')['object']
 
 
 
 # === Commands === #
 def deploy():
     # TODO: разные байткоды и аби
-    registrar = ContractWrapper(w3=web3, abi=ABI, bytecode=BYTECODE)
+    registrar = ContractWrapper(w3=web3, abi=registrar_ABI, bytecode=registrar_BYTECODE)
     payment = ContractWrapper(w3=web3, abi=ABI, bytecode=BYTECODE)
 
     registrar_rcpt = contract.constructor()
