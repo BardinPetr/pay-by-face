@@ -14,7 +14,8 @@ def parceJson(file_path):
 
 
 def toAddress(priv_key):
-    return Account.privateKeyToAccount('0x' + priv_key).address
+    prefix = '' if priv_key.startswith('0x') else '0x'
+    return Account.privateKeyToAccount(prefix + priv_key).address
 
 
 def get_private_key(uid, pin):
@@ -25,3 +26,13 @@ def get_private_key(uid, pin):
         a = Web3.sha3(a + u.bytes + pin.__next__().to_bytes(1, "little"))
     return a.hex()
 
+
+def normalize_balance(balance):
+    names = ["wei", "kwei", "mwei", "gwei", "szabo", "finney", "poa"]
+    i = 1
+    for name in names:
+        r = balance / (1000 ** i)
+        i += 1
+        if r // 1 == 0:
+            return 
+        print()
