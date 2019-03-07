@@ -1,15 +1,12 @@
-# NOTE: данный класс не поддерживает эвенты (но они нам и не нужны),
-# а так-же при создании функций из заготовленных атрибутов последние будут переопределяться
-# это относится к (gas_price, user_priv_key)
+# NOTE: данный класс не поддерживает эвенты (но они нам и не нужны)
+gas_price = None
+user_priv_key = None
+
 class ContractWrapper:
-    gas_price = None
-    user_priv_key = None
 
     def __init__(self, w3=None, **kwargs):
         """
         с w3.eth.defaultAccount будут отправляться транзакции.
-        обязательно перед вызовом методов контракта укажите!!
-        ContractWrapper.gas_price и ContractWrapper.user_priv_key
 
         Методы автоматически определяются как call или buildTransaction
         > методы определенные как call возвращают результат функции
@@ -25,11 +22,11 @@ class ContractWrapper:
         # setup constructor
         def construct(*args, **kwargs):
             tx = contract.constructor(*args, **kwargs).buildTransaction({
-                'gasPrice': self.gas_price,
+                'gasPrice': gas_price,
                 'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
             })
 
-            signed = w3.eth.account.signTransaction(tx, private_key=self.user_priv_key)
+            signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
             tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
             tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
@@ -53,11 +50,11 @@ class ContractWrapper:
                     def funct(name):
                         def func(*args, **kwargs):
                             tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
-                                'gasPrice': self.gas_price,
+                                'gasPrice': gas_price,
                                 'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
                                 })
 
-                            signed = w3.eth.account.signTransaction(tx, private_key=self.user_priv_key)
+                            signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
                             tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
                             tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
