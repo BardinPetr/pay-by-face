@@ -43,7 +43,8 @@ def create_frames(file_name):
         except:
             f = open(str(i) + ".jpg", "w")
             f.close()
-        res = check_all_right(cf.face.detect(str(i) + ".jpg"))
+        res = cf.face.detect(str(i) + ".jpg")
+        print(res)
         if not res:
             clear(i)
             return False
