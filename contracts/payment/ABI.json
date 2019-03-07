@@ -1,39 +1,6 @@
 [
 	{
 		"constant": false,
-		"inputs": [
-			{
-				"name": "phone",
-				"type": "string"
-			}
-		],
-		"name": "del",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "phone",
-				"type": "string"
-			}
-		],
-		"name": "get",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
 		"inputs": [],
 		"name": "renounceOwnership",
 		"outputs": [],
@@ -67,20 +34,6 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "phone",
-				"type": "string"
-			}
-		],
-		"name": "add",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
