@@ -26,16 +26,14 @@ def deploy():
     print('Payment Handler: ' + payment_rcpt['contractAddress'])
 
 def owner(contract_name):
-    data = parceJson('registrar.json')
     if contract_name == 'registrar':
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
     print('Admin account: ' + contract.owner())
 
 def chown(contract_name, addr):
-    data = parceJson('registrar.json')
     if contract_name == 'registrar':
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
     # проверка на то, что аккаунт сендера является овнером
     if contract.isOwner():

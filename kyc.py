@@ -2,35 +2,18 @@
 
 ### Put your code below this comment ###
 import sys
-from requests import get as getData
 from ethWrapper import ContractWrapper
-import ethWrapper
-from web3 import Web3, HTTPProvider
-
-
-# === Init === #
-network = parceJson('network.json')
-
-try:
-    ethWrapper.gas_price = int(getData(network['gasPriceUrl']).json()['fast'] * 1000000000)
-except:
-    ethWrapper.gas_price = int(network['defaultGasPrice'])
-
-web3 = Web3(HTTPProvider(network['rpcUrl']))
-ethWrapper.user_priv_key = network['privKey']
-web3.eth.defaultAccount = toAddress(network['privKey'])
-
-registrar_ABI = parceJson('contracts/registrar/ABI.json')
-registrar_BYTECODE = parceJson('contracts/registrar/bytecode.json')['object']
-
-payment_ABI = parceJson('contracts/payment/ABI.json')
-payment_BYTECODE = parceJson('contracts/payment/bytecode.json')['object']
-
-
-
+from network import *
 
 # === Commands === #
 def get(phone_number):
+    registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+
+    res = registrar.get(phone_number)
+    if res != '0x0000000000000000000000000000000000000000':
+        print('Registered correspondence: ' + res)
+    else:
+        print('Correspondence not found')
 
 
 commands = {
