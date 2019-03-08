@@ -49,7 +49,7 @@ class ContractWrapper:
                     elif elem['stateMutability'] == 'nonpayable':
                         def funct(name):
                             def func(*args, **kwargs):
-                                res = getattr(contract.functions, name)(*args, **kwargs).call()
+                                res = 0#getattr(contract.functions, name)(*args, **kwargs).call()
 
                                 tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
                                     'gasPrice': gas_price,
