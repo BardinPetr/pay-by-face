@@ -354,5 +354,17 @@
 		],
 		"name": "UnregistrationRequest",
 		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "sender",
+				"type": "address"
+			}
+		],
+		"name": "RegistrationCanceled",
+		"type": "event"
 	}
 ]

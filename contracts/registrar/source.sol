@@ -36,6 +36,7 @@ contract KYCContract {
 
     event RegistrationRequest(address indexed sender);
     event UnregistrationRequest(address indexed sender);
+    event RegistrationCanceled(address indexed sender);
 
     constructor() public {
         owner = msg.sender;
@@ -96,6 +97,7 @@ contract KYCContract {
             fixDelWaitingPhones(id1);
             res = true;
         }
+        emit RegistrationCanceled(msg.sender);
         return res;
     }
 

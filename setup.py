@@ -7,6 +7,7 @@ from json import dump
 from network import *
 
 
+
 # === Commands === #
 def deploy():
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, bytecode=registrar_BYTECODE)
