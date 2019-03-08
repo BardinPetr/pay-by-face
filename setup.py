@@ -50,13 +50,34 @@ def deploy():
     print('KYC Registrar: ' + registrar_rcpt['contractAddress'])
     print('Payment Handler: ' + payment_rcpt['contractAddress'])
 
+def owner(contract_name):
+    data = parceJson('registrar.json')
+    if contract_name == 'registrar':
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+
+    print('Admin account: ' + contract.owner())
+
+def chown(contract_name, addr):
+    data = parceJson('registrar.json')
+    if contract_name == 'registrar':
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+
+    # проверка на то, что аккаунт сендера является овнером
+    if contract.isOwner():
+        contract.transferOwnership(Web3.toChecksumAddress(addr))
+        print('New admin account: ' + contract.owner())
+    else:
+        print('Request cannot be executed')
+
 
 commands = {
-    'deploy': deploy
+    'deploy': deploy,
+    'owner': owner,
+    'chown': chown
 }
 
 
 
-# === Entry point === # 
+# === Entry point === #
 if __name__ == '__main__':
     commands[sys.argv[1][2:]](*sys.argv[2:])

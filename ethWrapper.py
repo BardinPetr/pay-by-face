@@ -1,9 +1,8 @@
-# NOTE: данный класс не поддерживает эвенты (но они нам и не нужны)
+# TODO: events
 gas_price = None
 user_priv_key = None
 
 class ContractWrapper:
-
     def __init__(self, w3=None, **kwargs):
         """
         с w3.eth.defaultAccount будут отправляться транзакции.
