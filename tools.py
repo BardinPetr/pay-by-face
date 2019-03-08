@@ -1,7 +1,7 @@
 from eth_account import Account
 from math import ceil
 from json import load
-from web3 import Web3
+from web3 import Web3, HTTPProvider
 import uuid
 import sha3
 
@@ -42,3 +42,11 @@ def weighing(val):
     k = min(ceil(len(str(val)) / 3) - 1, 6)
     val = round(int(val) / 10 ** (k * 3), 6)
     return str(val).rstrip('0').rstrip('.'), nominal[k] if val != 0 else "poa"
+
+
+def get_balance(web3, addr):
+    return web3.eth.getBalance(addr)
+
+
+def get_balance_by_priv(web3, priv):
+    return web3.eth.getBalance(toAddress(priv))
