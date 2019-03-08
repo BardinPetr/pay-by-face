@@ -201,15 +201,7 @@ def get_persons():
 
 def check_all_right(func=cf.person_group.lists, *args, **kwargs):
     try:
-        if args:
-            if kwargs:
-                return func(args, kwargs)
-            else:
-                return func(args)
-        elif kwargs:
-            return func(kwargs)
-        else:
-            return func()
+        return func(*args, **kwargs)
     except ConnectionError:
         print("No connection to MS Face API provider")
         exit(5)
