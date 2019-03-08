@@ -52,7 +52,7 @@ def send_add_user(args):
             ethWrapper.user_priv_key = pk
             web3.eth.defaultAccount = addr
             contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
-            res = contract.isInAddPending()
+            res = contract.isInAddPending() or contract.getByAddr(addr) != ""
             if res:
                 print("Registration request already sent")
                 return
@@ -63,8 +63,8 @@ def send_add_user(args):
         try:
             contract.add(args[1])
             print("Registration request sent by", addr)
-        except Exception as ex:
-            print("No funds to send the request", ex)
+        except:
+            print("No funds to send the request")
             return
     else:
         print("Incorrect phone number")

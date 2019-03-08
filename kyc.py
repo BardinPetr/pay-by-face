@@ -25,7 +25,6 @@ def confirm(addr):
         _datafile = parceJson('network.json')
         ethWrapper.user_priv_key = _datafile['privKey']
         web3.eth.defaultAccount = toAddress(_datafile['privKey'])
-        print(web3.eth.defaultAccount )
     except TypeError:
         print("ID is not found")
         return
@@ -38,10 +37,10 @@ def confirm(addr):
         print("No contract address")
         return
 
-    contract = None
+    contract, mode = None, 0
     try:
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
-        contract.owner()
+        mode = contract.getByAddr(addr) == ""
     except Exception as ex:
         print("Seems that the contract address is not the registrar contract.", ex)
         return
@@ -49,9 +48,9 @@ def confirm(addr):
     try:
         res = contract.approve(addr)
         if not res[0]['status']:
-            print("Failed but included in", res[0]['transactionHash'])
+            print("Failed but included in", res[0]['transactionHash'].hex())
         else:
-            print("Registration canceled by", res[0]['transactionHash'])
+            print("Confirmed by", res[0]['transactionHash'].hex())
     except Exception as ex:
         print("No funds to send the request", ex)
         return
