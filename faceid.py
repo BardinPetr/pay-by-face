@@ -56,8 +56,8 @@ def send_add_user(args):
             if res:
                 print("Registration request already sent")
                 return
-        except Exception as ex:
-            print("Seems that the contract address is not the registrar contract", ex)
+        except Exception:
+            print("Seems that the contract address is not the registrar contract")
             return
 
         try:
@@ -135,8 +135,8 @@ def send_cancel_user(args):
         if contract.getWaitingAdditionCnt() + contract.getWaitingDeletionCnt() == 0:
             print("No requests found")
             return
-    except Exception as ex:
-        print("Seems that the contract address is not the registrar contract.", ex)
+    except Exception:
+        print("Seems that the contract address is not the registrar contract.")
         return
 
     try:

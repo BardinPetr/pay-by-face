@@ -41,8 +41,8 @@ def confirm(addr):
     try:
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
         mode = contract.getByAddr(addr) == ""
-    except Exception as ex:
-        print("Seems that the contract address is not the registrar contract.", ex)
+    except Exception:
+        print("Seems that the contract address is not the registrar contract.")
         return
 
     try:
@@ -51,8 +51,8 @@ def confirm(addr):
             print("Failed but included in", res[0]['transactionHash'].hex())
         else:
             print("Confirmed by", res[0]['transactionHash'].hex())
-    except Exception as ex:
-        print("No funds to send the request", ex)
+    except Exception:
+        print("No funds to send the request")
         return
 
 
