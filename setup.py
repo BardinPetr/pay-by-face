@@ -57,11 +57,24 @@ def owner(contract_name):
 
     print('Admin account: ' + contract.owner())
 
+def chown(contract_name, addr):
+    data = parceJson('registrar.json')
+    if contract_name == 'registrar':
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+
+    prev_owner = contract.owner()
+    contract.transferOwnership(addr)
+    cur_owner = contract.owner()
+
+    if cur_owner != prev_owner:
+        print('New admin account: ' + cur_owner)
+
 
 
 commands = {
     'deploy': deploy,
-    'owner': owner
+    'owner': owner,
+    'chown': chown
 }
 
 
