@@ -8,6 +8,7 @@ from tools import *
 import ethWrapper
 import re
 
+
 ### Put your code below this comment ###
 
 web3 = Web3(HTTPProvider(parceJson('network.json')['rpcUrl']))
@@ -15,6 +16,13 @@ web3 = Web3(HTTPProvider(parceJson('network.json')['rpcUrl']))
 registrar_ABI = parceJson('contracts/registrar/ABI.json')
 
 network = parceJson('network.json')
+
+api_data = parceJson("faceapi.json")
+key = api_data["key"]
+base_url = api_data["serviceUrl"]
+cf.Key.set(key)
+cf.BaseUrl.set(base_url)
+g_id = api_data["groupId"]
 
 try:
     ethWrapper.gas_price = int(getData(network['gasPriceUrl']).json()['fast'] * 1000000000)
@@ -181,14 +189,40 @@ def send(pin, phone, val):
 
 
 
+def idetify_person(video):
+    simple = not os.path.exists("actions.json")
+    if exist_group():
+        res = check_all_right(cf.person_group.get, g_id)
+        if res.setdefault("userData") == "trained":
+            if simple:
+                faces = create_frames_simple(video)
+                if faces:
+                    candidate = get_predict(faces)
+                    if candidate:
+                        open("person.json", "w").write(str({"id": candidate}))
+                    else:
+                        print("The person was not found")
+                    clear(5)
+                else:
+                    print("The video does not follow requirements")
+            else:
+                pass
+        else:
+            print("The service is not ready")
+            if os.path.exists("person.json"):
+                os.remove("person.json")
+    else:
+        print("The service is not ready")
+
+
 commands = {
     'balance': request_balance,
     'add': send_add_user,
     'del': send_del_user,
     'cancel': send_cancel_user,
-    'send': send
+    'send': send,
+    'find': idetify_person
 }
-
 # === Entry point === #
 if __name__ == '__main__':
     try:

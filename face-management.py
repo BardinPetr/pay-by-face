@@ -6,55 +6,15 @@ import cv2
 import sys
 import os
 import time
+from tools import *
 
 
-def parse_json(file_path):
-    try:
-        with open(file_path) as f:
-            content = load(f)
-        return content
-    except FileNotFoundError:
-        return None
-
-
-api_data = parse_json("faceapi.json")
+api_data = parceJson("faceapi.json")
 key = api_data["key"]
 base_url = api_data["serviceUrl"]
 cf.Key.set(key)
 cf.BaseUrl.set(base_url)
 g_id = api_data["groupId"]
-
-
-def create_frames_simple(video):
-    face_ids = []
-    cap = cv2.VideoCapture(video)
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    if length < 5:
-        return False
-    step = length // 4
-    cap.release()
-    for i in range(1, 6):
-        if i == 1:
-            frame = -1
-        elif i == 5:
-            frame = length - 1
-        else:
-            frame = step * (i - 1)
-        cap = cv2.VideoCapture(video)
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
-        try:
-            cv2.imwrite(str(i) + ".jpg", cap.read()[1])
-        except:
-            f = open(str(i) + ".jpg", "w")
-            f.close()
-        res = check_all_right(cf.face.detect, str(i) + ".jpg")
-        if res:
-            face_ids.append(res[0]["faceId"])
-        else:
-            clear(i)
-            return False
-        cap.release()
-    return face_ids
 
 
 def create_person(video, simple=True):
@@ -81,20 +41,6 @@ def create_person(video, simple=True):
         pass
 
 
-def clear(to):
-    for i in range(1, to + 1):
-        os.remove(str(i) + ".jpg")
-
-
-def exist_group(create=False):
-    if check_all_right(cf.person_group.get, g_id):
-        return True
-    else:
-        if create:
-            check_all_right(cf.person_group.create, g_id, user_data="null")
-        return False
-
-
 def delete_person(person_id):
     if exist_group():
         res = check_all_right(cf.person.lists, g_id)
@@ -105,6 +51,8 @@ def delete_person(person_id):
                 print("Person deleted")
             else:
                 print("The person does not exist")
+        else:
+            print("The person does not exist")
     else:
         print("The group does not exist")
 
@@ -114,53 +62,15 @@ def train_group():
         res = check_all_right(cf.person_group.get, g_id)
         if res.setdefault("userData") == "trained":
             print("Already trained")
-        elif res.setdefault("userData") == "null":
-            print("There is nothing to train")
         elif res.setdefault("userData") == "not trained":
             check_all_right(cf.person_group.train, g_id)
             check_all_right(cf.person_group.update, g_id, user_data="trained")
             print("Training successfully started")
+        else:
+            print("There is nothing to train")
+
     else:
         print("There is nothing to train")
-
-
-def get_predict(faces):
-    exist_group(True)
-    res = check_all_right(cf.face.identify, face_ids=faces, person_group_id=g_id)
-    if res:
-        if any(list(map(lambda x: len(x["candidates"]) == 0, res))):
-            return False
-        candidates = set(map(lambda x: x["personId"], list(
-            map(lambda can: list(filter(lambda x: x["confidence"] >= 0.5, can["candidates"]))[0],
-                res))))
-        if len(candidates) == 1:
-            return candidates.pop()
-        else:
-            return False
-
-
-def idetify_person(video, simple=True):
-    if exist_group():
-        res = check_all_right(cf.person_group.get, g_id)
-        if res.setdefault("userData") == "trained":
-            if simple:
-                faces = create_frames_simple(video)
-                if faces:
-                    candidate = get_predict(faces)
-                    if candidate:
-                        open("person.json", "w").write(str({"id": candidate}))
-                    else:
-                        print("The person was not found")
-                else:
-                    print("The video does not follow requirements")
-            else:
-                pass
-        else:
-            print("The service is not ready")
-            if os.path.exists("person.json"):
-                os.remove("person.json")
-    else:
-        print("The service is not ready")
 
 
 def is_trained():
@@ -187,33 +97,6 @@ def get_persons():
         print("The group does not exist")
 
 
-def check_all_right(func=cf.person_group.lists, *args, **kwargs):
-    try:
-        return func(*args, **kwargs)
-    except ConnectionError:
-        print("No connection to MS Face API provider")
-        exit(5)
-    except Exception as e:
-        if hasattr(e, 'status_code'):
-            if e.status_code == 401:
-                print("Incorrect subscription key")
-                exit()
-            elif e.status_code == 404:
-                return False
-            elif e.status_code == 409:
-                pass
-            elif e.status_code == 429:
-                if hasattr(e, 'message'):
-                    time.sleep(int(e.message.split("Try again in ")[1].split()[0]))
-        elif hasattr(e, 'code'):
-            if e.code == 5:
-                exit()
-            elif e.code == "PersonGroupNotFound":
-                return False
-            elif e.code == "LargePersonGroupTrainingNotFinished":
-                return False
-
-
 if __name__ == "__main__":
     check_all_right()
     if sys.argv[1] == "--simple-add":
@@ -224,5 +107,3 @@ if __name__ == "__main__":
         get_persons()
     elif sys.argv[1] == "--train":
         train_group()
-    elif sys.argv[1] == "--find":
-        idetify_person(sys.argv[2], not os.path.exists("actions.json"))
