@@ -166,9 +166,14 @@ def send(pin, phone, val):
             }
 
             signed = web3.eth.account.signTransaction(transaction, priv_key)
-            web3.eth.sendRawTransaction(signed.rawTransaction)
+            tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
 
-            print()
+            tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+
+            val, tp = weighing(val)
+
+            print('Payment of {} {} to {} scheduled'.format(val, tp, phone))
+            print('Transaction Hash: ' + web3.toHex(tx_hash))
         except:
             print('No funds to send the payment')
     else:
