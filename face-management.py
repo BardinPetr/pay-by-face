@@ -128,9 +128,9 @@ def get_predict(imgs):
     for img in imgs:
 
         faces.append()
-    new_candidate = list(filter(lambda x: x["confidence"] >= 0.5,
-                                cf.face.identify(face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
-                                                 person_group_id=g_id)[0]["candidates"]))
+    # new_candidate = list(filter(lambda x: x["confidence"] >= 0.5,
+    #                             cf.face.identify(face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
+    #                                              person_group_id=g_id)[0]["candidates"]))
 
 
 def idetify_person(video, simple=True):
