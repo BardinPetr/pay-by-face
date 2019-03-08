@@ -150,11 +150,15 @@ def send_cancel_user(args):
         print("No funds to send the request")
         return
 
+def send(pin, phone, val):
+    pass
+
 
 commands = {
     'balance': request_balance,
     'add': send_add_user,
-    'del': send_del_user
+    'del': send_del_user,
+    'send': send
 }
 
 # === Entry point === #

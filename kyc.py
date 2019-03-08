@@ -19,9 +19,9 @@ def confirm():
     pass
 
 def list(list_name):
-    if list_name == 'add':
-        registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+    registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
+    if list_name == 'add':
         addlist_len = registrar.getWaitingAdditionCnt()
 
         if addlist_len == 0:
@@ -29,6 +29,16 @@ def list(list_name):
         else:
             for i in range(addlist_len):
                 elem = registrar.addWaitingPhones(i)
+                print('{}: {}'.format(elem[0], elem[1]))
+
+    elif list_name == 'del':
+        dltlist_len = registrar.getWaitingDeletionCnt()
+
+        if dltlist_len == 0:
+            print('No KYC unregistration requests found')
+        else:
+            for i in range(dltlist_len):
+                elem = registrar.delWaitingPhones(i)
                 print('{}: {}'.format(elem[0], elem[1]))
 
 
