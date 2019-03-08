@@ -40,8 +40,8 @@ def create_frames_simple(video):
             frame = length - 1
         else:
             frame = step * (i - 1)
-        cap.set(2, frame)
         cap = cv2.VideoCapture(video)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
         try:
             cv2.imwrite(str(i) + ".jpg", cap.read()[1])
         except:
