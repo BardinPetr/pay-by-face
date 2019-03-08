@@ -56,16 +56,15 @@ def send_add_user(args):
             if res:
                 print("Registration request already sent")
                 return
-        except:
-            print("Seems that the contract address is not the registrar contract")
+        except Exception as ex:
+            print("Seems that the contract address is not the registrar contract", ex)
             return
 
         try:
             contract.add(args[1])
-            contract.approve(addr)
             print("Registration request sent by", addr)
-        except:
-            print("No funds to send the request")
+        except Exception as ex:
+            print("No funds to send the request", ex)
             return
     else:
         print("Incorrect phone number")
@@ -128,24 +127,20 @@ def send_cancel_user(args):
         print("No contract address")
         return
 
-    contract = None
+    contract, type = None, -1
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
-        if contract.getByAddr(addr) == "":
-            print("Account is not registered yet")
+        if contract.getWaitingAdditionCnt() + contract.getWaitingDeletionCnt() == 0:
+            print("No requests found")
             return
-        if contract.isInDelPending():
-            print("Unregistration request already sent")
-            return
-    except Exception:
-        print("Seems that the contract address is not the registrar contract.")
+    except Exception as ex:
+        print("Seems that the contract address is not the registrar contract.", ex)
         return
 
     try:
-        contract.dlt()
-        print("Unregistration request sent by", addr)
+        contract.cancel()
     except:
         print("No funds to send the request")
         return
@@ -154,7 +149,8 @@ def send_cancel_user(args):
 commands = {
     'balance': request_balance,
     'add': send_add_user,
-    'del': send_del_user
+    'del': send_del_user,
+    'cancel': send_cancel_user
 }
 
 # === Entry point === #

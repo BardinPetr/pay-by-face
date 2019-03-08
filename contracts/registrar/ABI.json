@@ -290,7 +290,7 @@
 		"outputs": [
 			{
 				"name": "",
-				"type": "bool"
+				"type": "int256"
 			}
 		],
 		"payable": false,
@@ -304,7 +304,7 @@
 		"outputs": [
 			{
 				"name": "",
-				"type": "bool"
+				"type": "int256"
 			}
 		],
 		"payable": false,
@@ -365,6 +365,42 @@
 			}
 		],
 		"name": "RegistrationCanceled",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "sender",
+				"type": "address"
+			}
+		],
+		"name": "UnregistrationCanceled",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "sender",
+				"type": "address"
+			}
+		],
+		"name": "RegistrationConfirmed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "sender",
+				"type": "address"
+			}
+		],
+		"name": "UnregistrationConfirmed",
 		"type": "event"
 	}
 ]

@@ -5,7 +5,11 @@ import sys
 from ethWrapper import ContractWrapper
 from network import *
 
+
 # === Commands === #
+from tools import get_private_key
+
+
 def get(phone_number):
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
@@ -15,8 +19,43 @@ def get(phone_number):
     else:
         print('Correspondence not found')
 
-def confirm():
-    pass
+
+def confirm(addr):
+    try:
+        _datafile = parceJson('network.json')
+        ethWrapper.user_priv_key = _datafile['privKey']
+        web3.eth.defaultAccount = toAddress(_datafile['privKey'])
+        print(web3.eth.defaultAccount )
+    except TypeError:
+        print("ID is not found")
+        return
+
+    data = None
+    try:
+        data = parceJson('registrar.json')
+        _ = data['registrar']
+    except:
+        print("No contract address")
+        return
+
+    contract = None
+    try:
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract.owner()
+    except Exception as ex:
+        print("Seems that the contract address is not the registrar contract.", ex)
+        return
+
+    try:
+        res = contract.approve(addr)
+        if not res[0]['status']:
+            print("Failed but included in", res[0]['transactionHash'])
+        else:
+            print("Registration canceled by", res[0]['transactionHash'])
+    except Exception as ex:
+        print("No funds to send the request", ex)
+        return
+
 
 def list(list_name):
     if list_name == 'add':
@@ -37,7 +76,6 @@ commands = {
     'confirm': confirm,
     'list': list
 }
-
 
 # === Entry point === #
 if __name__ == '__main__':

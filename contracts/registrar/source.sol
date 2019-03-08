@@ -36,7 +36,12 @@ contract KYCContract {
 
     event RegistrationRequest(address indexed sender);
     event UnregistrationRequest(address indexed sender);
+
     event RegistrationCanceled(address indexed sender);
+    event UnregistrationCanceled(address indexed sender);
+
+    event RegistrationConfirmed(address indexed sender);
+    event UnregistrationConfirmed(address indexed sender);
 
     constructor() public {
         owner = msg.sender;
@@ -80,29 +85,29 @@ contract KYCContract {
     }
 
 
-    function cancel() public returns (bool) {
+    function cancel() public returns (int) {
         address addr = msg.sender;
-        bool res = false;
+        require(waitingAddition[addr].isUsed || waitingDeletion[addr].isUsed);
         if(waitingAddition[addr].isUsed) {
             uint256 id = waitingAddition[addr].arrayIndex;
             delete waitingAddition[addr];
             delete addWaitingPhones[id];
             fixAddWaitingPhones(id);
-            res = true;
-        }
-        if (waitingDeletion[addr].isUsed) {
+            emit RegistrationCanceled(msg.sender);
+            return 1;
+        } else if (waitingDeletion[addr].isUsed) {
             uint256 id1 = waitingDeletion[addr].arrayIndex;
             delete waitingDeletion[addr];
             delete delWaitingPhones[id1];
             fixDelWaitingPhones(id1);
-            res = true;
+            emit UnregistrationCanceled(msg.sender);
+            return 2;
         }
-        emit RegistrationCanceled(msg.sender);
-        return res;
+        return 0;
     }
 
-    function approve(address addr) public returns (bool) {
-        bool res = false;
+    function approve(address addr) public onlyOwner returns (int) {
+        require(waitingAddition[addr].isUsed || waitingDeletion[addr].isUsed);
         if(waitingAddition[addr].isUsed) {
             uint256 id = waitingAddition[addr].arrayIndex;
             string memory phone = addWaitingPhones[id].phone;
@@ -111,9 +116,9 @@ contract KYCContract {
             delete waitingAddition[addr];
             delete addWaitingPhones[id];
             fixAddWaitingPhones(id);
-            res = true;
-        }
-        if (waitingDeletion[addr].isUsed) {
+            emit RegistrationConfirmed(addr);
+            return 1;
+        } else if (waitingDeletion[addr].isUsed) {
             uint256 id1 = waitingDeletion[addr].arrayIndex;
             string memory phone1 = delWaitingPhones[id1].phone;
             delete data[phone1];
@@ -121,9 +126,10 @@ contract KYCContract {
             delete waitingDeletion[addr];
             delete delWaitingPhones[id1];
             fixDelWaitingPhones(id1);
-            res = true;
+            emit UnregistrationConfirmed(addr);
+            return 2;
         }
-        return res;
+        return 0;
     }
 
 
