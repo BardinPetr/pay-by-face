@@ -15,9 +15,27 @@ def get(phone_number):
     else:
         print('Correspondence not found')
 
+def confirm():
+    pass
+
+def list(list_name):
+    if list_name == 'add':
+        registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+
+        addlist_len = registrar.getWaitingAdditionCnt()
+
+        if addlist_len == 0:
+            print('No KYC registration requests found')
+        else:
+            for i in range(addlist_len):
+                elem = registrar.addWaitingPhones(i)
+                print('{}: {}'.format(elem[0], elem[1]))
+
 
 commands = {
-    'get': get
+    'get': get,
+    'confirm': confirm,
+    'list': list
 }
 
 
