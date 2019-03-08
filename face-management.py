@@ -151,6 +151,7 @@ def idetify_person(video, simple=True):
                         open("person.json", "w").write(str({"id": candidate}))
                     else:
                         print("The person was not found")
+                    clear(5)
                 else:
                     print("The video does not follow requirements")
             else:
