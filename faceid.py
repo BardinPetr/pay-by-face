@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from web3 import HTTPProvider, Web3, eth
-from ethWrapper import ContractWrapper
+from ethWrapper import ContractWrapper, gas_price
 from requests import get as getData
 from sys import argv
 from tools import *
@@ -149,7 +149,31 @@ def send_cancel_user(args):
 
 
 def send(pin, phone, val):
-    pass
+    priv_key = get_private_key(parceJson('person.json')['id'], pin)
+
+    registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+
+    sendto_addr = registrar.get(phone)
+
+    if sendto_addr != '0x0000000000000000000000000000000000000000':
+        try:
+            transaction = {
+            'to': sendto_addr,
+            'value': val,
+            'gas': 21000,
+            'gasPrice': gas_price,
+            'nonce': web3.eth.getTransactionCount(web3.eth.defaultAccount)
+            }
+
+            signed = web3.eth.account.signTransaction(transaction, priv_key)
+            web3.eth.sendRawTransaction(signed.rawTransaction)
+
+            print()
+        except:
+            print('No funds to send the payment')
+    else:
+        print('No account with the phone number: ' + phone)
+
 
 
 commands = {
