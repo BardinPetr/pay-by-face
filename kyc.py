@@ -47,10 +47,10 @@ def confirm(addr):
 
     try:
         res = contract.approve(addr)
-        if not res[0]['status']:
-            print("Failed but included in", res[0]['transactionHash'].hex())
+        if not res['status']:
+            print("Failed but included in", res['transactionHash'].hex())
         else:
-            print("Confirmed by", res[0]['transactionHash'].hex())
+            print("Confirmed by", res['transactionHash'].hex())
     except Exception:
         print("No funds to send the request")
         return

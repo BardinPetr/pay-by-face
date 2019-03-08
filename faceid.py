@@ -61,8 +61,8 @@ def send_add_user(args):
             return
 
         try:
-            contract.add(args[1])
-            print("Registration request sent by", addr)
+            res = contract.add(args[1])
+            print("Registration request sent by", res['transactionHash'].hex())
         except:
             print("No funds to send the request")
             return
@@ -103,8 +103,8 @@ def send_del_user(args):
         return
 
     try:
-        contract.dlt()
-        print("Unregistration request sent by", addr)
+        res = contract.dlt()
+        print("Unregistration request sent by", res['transactionHash'].hex())
     except:
         print("No funds to send the request")
         return
@@ -127,12 +127,13 @@ def send_cancel_user(args):
         print("No contract address")
         return
 
-    contract, type = None, -1
+    contract, mode = None, -1
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
-        if contract.getWaitingAdditionCnt() + contract.getWaitingDeletionCnt() == 0:
+        mode = contract.isInAddPending()
+        if not mode and not contract.isInDelPending():
             print("No requests found")
             return
     except Exception:
@@ -140,10 +141,12 @@ def send_cancel_user(args):
         return
 
     try:
-        contract.cancel()
-    except:
-        print("No funds to send the request")
+        res = contract.cancel()
+        print(("R" if mode else "Unr") + "egistration canceled by", res['transactionHash'].hex())
+    except Exception as ex:
+        print("No funds to send the request", ex)
         return
+
 
 def send(pin, phone, val):
     pass
