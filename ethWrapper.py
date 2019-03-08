@@ -3,7 +3,6 @@ gas_price = None
 user_priv_key = None
 
 class ContractWrapper:
-
     def __init__(self, w3=None, **kwargs):
         """
         с w3.eth.defaultAccount будут отправляться транзакции.

@@ -50,13 +50,22 @@ def deploy():
     print('KYC Registrar: ' + registrar_rcpt['contractAddress'])
     print('Payment Handler: ' + payment_rcpt['contractAddress'])
 
+def owner(contract_name):
+    data = parceJson('registrar.json')
+    if contract_name == 'registrar':
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+
+    print('Admin account: ' + contract.owner())
+
+
 
 commands = {
-    'deploy': deploy
+    'deploy': deploy,
+    'owner': owner
 }
 
 
 
-# === Entry point === # 
+# === Entry point === #
 if __name__ == '__main__':
     commands[sys.argv[1][2:]](*sys.argv[2:])
