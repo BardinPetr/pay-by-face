@@ -99,35 +99,42 @@ def check_all_right(func=cf.person_group.lists, *args, **kwargs):
 
 
 def create_frames_simple(video):
-    face_ids = []
-    cap = cv2.VideoCapture(video)
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    if length < 5:
-        return False
-    step = length // 4
-    cap.release()
-    for i in range(1, 6):
-        if i == 1:
-            frame = -1
-        elif i == 5:
-            frame = length - 1
-        else:
-            frame = step * (i - 1)
+    try:
+        video = (video + [])[0]
+    except:
+        pass
+    if os.path.exists(video):
+        face_ids = []
         cap = cv2.VideoCapture(video)
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
-        try:
-            cv2.imwrite(str(i) + ".jpg", cap.read()[1])
-        except:
-            f = open(str(i) + ".jpg", "w")
-            f.close()
-        res = check_all_right(cf.face.detect, str(i) + ".jpg")
-        if res:
-            face_ids.append(res[0]["faceId"])
-        else:
-            clear(i)
+        length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if length < 5:
             return False
+        step = length // 4
         cap.release()
-    return face_ids
+        for i in range(1, 6):
+            if i == 1:
+                frame = -1
+            elif i == 5:
+                frame = length - 1
+            else:
+                frame = step * (i - 1)
+            cap = cv2.VideoCapture(video)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
+            try:
+                cv2.imwrite(str(i) + ".jpg", cap.read()[1])
+            except:
+                f = open(str(i) + ".jpg", "w")
+                f.close()
+            res = check_all_right(cf.face.detect, str(i) + ".jpg")
+            if res:
+                face_ids.append(res[0]["faceId"])
+            else:
+                clear(i)
+                return False
+            cap.release()
+        return face_ids
+    else:
+        return False
 
 
 def get_predict(faces):
