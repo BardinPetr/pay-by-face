@@ -18,18 +18,20 @@ def deploy():
 
     with open('registrar.json', 'w') as f:
         dump({
-            'registrar': { 'address': registrar_rcpt['contractAddress'], 'startBlock': registrar_rcpt['blockNumber'] },
-            'payments': { 'address': payment_rcpt['contractAddress'], 'startBlock': payment_rcpt['blockNumber'] }
+            'registrar': {'address': registrar_rcpt['contractAddress'], 'startBlock': registrar_rcpt['blockNumber']},
+            'payments': {'address': payment_rcpt['contractAddress'], 'startBlock': payment_rcpt['blockNumber']}
         }, f)
 
     print('KYC Registrar: ' + registrar_rcpt['contractAddress'])
     print('Payment Handler: ' + payment_rcpt['contractAddress'])
+
 
 def owner(contract_name):
     if contract_name == 'registrar':
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
     print('Admin account: ' + contract.owner())
+
 
 def chown(contract_name, addr):
     if contract_name == 'registrar':
@@ -48,8 +50,6 @@ commands = {
     'owner': owner,
     'chown': chown
 }
-
-
 
 # === Entry point === #
 if __name__ == '__main__':
