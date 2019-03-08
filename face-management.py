@@ -99,10 +99,10 @@ def delete_person(person_id):
     if exist_group():
         res = check_all_right(cf.person.lists, g_id)
         if res:
-            if person_id in res:
+            if person_id in [i["personId"] for i in res]:
                 check_all_right(cf.person.delete, person_group_id=g_id, person_id=person_id)
                 check_all_right(cf.person_group.update, g_id, user_data="not trained")
-                print("Person with id deleted")
+                print("Person deleted")
             else:
                 print("The person does not exist")
     else:
@@ -118,8 +118,7 @@ def train_group():
             print("There is nothing to train")
         elif res.setdefault("userData") == "not trained":
             check_all_right(cf.person_group.train, g_id)
-            while not check_all_right(cf.person_group.update, g_id, user_data="trained"):
-                pass
+            check_all_right(cf.person_group.update, g_id, user_data="trained")
             print("Training successfully started")
     else:
         print("There is nothing to train")
@@ -129,7 +128,7 @@ def get_predict(faces):
     exist_group(True)
     res = check_all_right(cf.face.identify, face_ids=faces, person_group_id=g_id)
     if res:
-        if any(lambda x: len(x["candidates"]) == 0, res):
+        if any(list(map(lambda x: len(x["candidates"]) == 0, res))):
             return False
         candidates = set(map(lambda x: x["personId"], list(
             map(lambda can: list(filter(lambda x: x["confidence"] >= 0.5, can["candidates"]))[0],
@@ -212,7 +211,7 @@ def is_trained():
 
 def get_persons():
     if exist_group():
-        res = check_all_right(cf.person.lists, person_group_id=g_id)
+        res = check_all_right(cf.person.lists, g_id)
         if res:
             print("Persons IDs:")
             for i in res:
@@ -221,7 +220,6 @@ def get_persons():
             print("No persons found")
     else:
         print("The group does not exist")
-        cf.person_group.update()
 
 
 def check_all_right(func=cf.person_group.lists, *args, **kwargs):
@@ -262,4 +260,4 @@ if __name__ == "__main__":
     elif sys.argv[1] == "--train":
         train_group()
     elif sys.argv[1] == "--find":
-        find_person(sys.argv[2], os.path.exists("actions.json"))
+        idetify_person(sys.argv[2], not os.path.exists("actions.json"))
