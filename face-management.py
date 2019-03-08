@@ -163,41 +163,6 @@ def idetify_person(video, simple=True):
         print("The service is not ready")
 
 
-def find_person(video, simple=True):
-    exist_group()
-    if simple:
-        if is_trained():
-            if create_frames_simple(video):
-                for i in range(1, 6):
-                    try:
-                        new_candidate = list(filter(lambda x: x["confidence"] >= 0.5,
-                                                    cf.face.identify(
-                                                        face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
-                                                        person_group_id=g_id)[0]["candidates"]))
-                        if new_candidate:
-                            if i == 1:
-                                candidate = new_candidate[0]["personId"]
-                            else:
-                                if candidate != new_candidate[0]["personId"]:
-                                    print("The person cannot be identified")
-                                    return
-                        else:
-                            print("The person cannot be identified")
-                            return
-                    except IndexError:
-                        print("The person cannot be identified")
-                        return
-                res = check_all_right(cf.person.get, person_group_id=g_id, person_id=candidate)
-                if res:
-                    open("person.json", "w").write(str({"id": res["personId"]}))
-            else:
-                print("The person cannot be identified")
-        else:
-            print("The system is not ready yet")
-    else:
-        pass
-
-
 def is_trained():
     res = check_all_right(cf.person_group.get_status, g_id)
     if res:
