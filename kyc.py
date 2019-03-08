@@ -5,19 +5,33 @@ import sys
 from requests import get as getData
 from ethWrapper import ContractWrapper
 import ethWrapper
-from tools import parceJson, toAddress
 from web3 import Web3, HTTPProvider
-from json import dump
 
 
 # === Init === #
+network = parceJson('network.json')
+
+try:
+    ethWrapper.gas_price = int(getData(network['gasPriceUrl']).json()['fast'] * 1000000000)
+except:
+    ethWrapper.gas_price = int(network['defaultGasPrice'])
+
+web3 = Web3(HTTPProvider(network['rpcUrl']))
+ethWrapper.user_priv_key = network['privKey']
+web3.eth.defaultAccount = toAddress(network['privKey'])
+
+registrar_ABI = parceJson('contracts/registrar/ABI.json')
+registrar_BYTECODE = parceJson('contracts/registrar/bytecode.json')['object']
+
+payment_ABI = parceJson('contracts/payment/ABI.json')
+payment_BYTECODE = parceJson('contracts/payment/bytecode.json')['object']
 
 
 
 
 # === Commands === #
 def get(phone_number):
-    pass
+
 
 commands = {
     'get': get
