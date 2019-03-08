@@ -118,7 +118,7 @@ def send_del_user(args):
         return
 
 
-def send_cancel_user(args):
+def send_cancel_user(args, ttl=4):
     addr, pk = None, None
     try:
         pk = get_private_key(parceJson('person.json')['id'], args[0])
@@ -151,9 +151,12 @@ def send_cancel_user(args):
     try:
         res = contract.cancel()
         print(("R" if mode else "Unr") + "egistration canceled by", res['transactionHash'].hex())
+        exit(0)
     except Exception as ex:
-        print("No funds to send the request", ex)
-        return
+        if ttl > 0:
+            send_cancel_user(args, ttl-1)
+        print("No funds to send the request")
+        exit(0)
 
 
 def send(pin, phone, val):
