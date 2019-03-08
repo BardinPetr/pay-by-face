@@ -17,6 +17,9 @@ class ContractWrapper:
 
         contract = w3.eth.contract(**kwargs)
 
+        # setup events
+        self.events = contract.events
+
         # setup constructor
         def construct(*args, **kwargs):
             tx = contract.constructor(*args, **kwargs).buildTransaction({
