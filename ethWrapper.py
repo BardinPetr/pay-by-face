@@ -49,6 +49,8 @@ class ContractWrapper:
                     elif elem['stateMutability'] == 'nonpayable':
                         def funct(name):
                             def func(*args, **kwargs):
+                                res = getattr(contract.functions, name)(*args, **kwargs).call()
+
                                 tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
                                     'gasPrice': gas_price,
                                     'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
@@ -59,7 +61,7 @@ class ContractWrapper:
 
                                 tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
-                                return tx_receipt
+                                return tx_receipt, res
                             return func
 
                     setattr(self, elem['name'], funct(elem['name']))
