@@ -65,18 +65,15 @@ def list(list_name):
         if addlist_len == 0:
             print('No KYC registration requests found')
         else:
-            addlist = {}
             phones_list = []
             for i in range(addlist_len):
                 elem = registrar.addWaitingPhones(i)
-                phones_list.append(elem[1])
-                addlist[elem[1]] = elem[0]
+                phones_list.append(elem)
 
-            phones_list.sort()
+            phones_list.sort(key=lambda x: (x[1], x[0]))
 
-            for phone in phones_list:
-                addr = addlist[phone]
-                print('{}: {}'.format(phone, addr))
+            for addr, phone, _ in phones_list:
+                print('{}: {}'.format(addr, phone))
 
     elif list_name == 'del':
         dltlist_len = registrar.getWaitingDeletionCnt()
@@ -84,18 +81,15 @@ def list(list_name):
         if dltlist_len == 0:
             print('No KYC unregistration requests found')
         else:
-            dltlist = {}
             phones_list = []
             for i in range(dltlist_len):
                 elem = registrar.delWaitingPhones(i)
-                phones_list.append(elem[1])
-                addlist[elem[1]] = elem[0]
+                phones_list.append(elem)
 
-            phones_list.sort()
+            phones_list.sort(key=lambda x: (x[1], x[0]))
 
-            for phone in phones_list:
-                addr = addlist[phone]
-                print('{}: {}'.format(phone, addr))
+            for addr, phone, _ in phones_list:
+                print('{}: {}'.format(addr, phone))
 
 
 commands = {
