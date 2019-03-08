@@ -51,6 +51,8 @@ def delete_person(person_id):
                 print("Person deleted")
             else:
                 print("The person does not exist")
+        else:
+            print("The person does not exist")
     else:
         print("The group does not exist")
 
