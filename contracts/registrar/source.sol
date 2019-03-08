@@ -35,6 +35,7 @@ contract KYCContract {
     User[] public delWaitingPhones;
 
     event RegistrationRequest(address indexed sender);
+    event UnregistrationRequest(address indexed sender);
 
     constructor() public {
         owner = msg.sender;
@@ -48,13 +49,14 @@ contract KYCContract {
         return true;
     }
 
-    function del() public returns (bool) {
+    function dlt() public returns (bool) {
         address snd = msg.sender;
         require (!waitingAddition[snd].isUsed &&
             !waitingDeletion[snd].isUsed &&
             dataPhones[snd].isUsed);
         delWaitingPhones.push(User({ addr: snd, phone: dataPhones[snd].phone, isUsed: true }));
         waitingDeletion[snd] = ApprovementWaiting( { arrayIndex: addWaitingPhones.length - 1, isUsed: true } );
+        emit UnregistrationRequest(msg.sender);
         return true;
     }
 

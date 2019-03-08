@@ -56,12 +56,13 @@ def send_add_user(args):
             if res:
                 print("Registration request already sent")
                 return
-        except Exception as ex:
-            print("Seems that the contract address is not the registrar contract", ex)
+        except:
+            print("Seems that the contract address is not the registrar contract")
             return
 
         try:
             contract.add(args[1])
+            contract.approve(addr)
             print("Registration request sent by", addr)
         except:
             print("No funds to send the request")
@@ -70,9 +71,50 @@ def send_add_user(args):
         print("Incorrect phone number")
 
 
+def send_del_user(args):
+    addr, pk = None, None
+    try:
+        pk = get_private_key(parceJson('person.json')['id'], args[0])
+        addr = toAddress(pk)
+    except TypeError:
+        print("ID is not found")
+        return
+
+    data = None
+    try:
+        data = parceJson('registrar.json')
+        _ = data['registrar']
+    except:
+        print("No contract address")
+        return
+
+    contract = None
+    try:
+        ethWrapper.user_priv_key = pk
+        web3.eth.defaultAccount = addr
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        if contract.getByAddr(addr) == "":
+            print("Account is not registered yet")
+            return
+        if contract.isInDelPending():
+            print("Unregistration request already sent")
+            return
+    except Exception:
+        print("Seems that the contract address is not the registrar contract.")
+        return
+
+    try:
+        contract.dlt()
+        print("Unregistration request sent by", addr)
+    except:
+        print("No funds to send the request")
+        return
+
+
 commands = {
     'balance': request_balance,
-    'add': send_add_user
+    'add': send_add_user,
+    'del': send_del_user
 }
 
 # === Entry point === #
