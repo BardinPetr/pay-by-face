@@ -159,7 +159,11 @@ def send_cancel_user(args, ttl=4):
         exit(0)
 
 
-def send(pin, phone, val):
+def send(a):
+    pin = a[0]
+    phone = a[1]
+    val = a[2]
+
     priv_key = get_private_key(parceJson('person.json')['id'], pin)
 
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
