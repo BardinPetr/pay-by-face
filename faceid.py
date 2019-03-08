@@ -42,7 +42,8 @@ def send_add_user(args):
         data = None
         try:
             data = parceJson('registrar.json')
-        except TypeError:
+            _ = data['registrar']
+        except:
             print("No contract address")
             return
 
@@ -55,8 +56,8 @@ def send_add_user(args):
             if res:
                 print("Registration request already sent")
                 return
-        except:
-            print("Seems that the contract address is not the registrar contract")
+        except Exception as ex:
+            print("Seems that the contract address is not the registrar contract", ex)
             return
 
         try:
