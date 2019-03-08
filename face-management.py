@@ -25,7 +25,8 @@ cf.BaseUrl.set(base_url)
 g_id = api_data["groupId"]
 
 
-def create_frames(video):
+def create_frames_simple(video):
+    face_ids = []
     cap = cv2.VideoCapture(video)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     if length < 5:
@@ -47,16 +48,18 @@ def create_frames(video):
             f = open(str(i) + ".jpg", "w")
             f.close()
         res = check_all_right(cf.face.detect, str(i) + ".jpg")
-        if not res:
+        if res:
+            face_ids.append(res[0]["faceId"])
+        else:
             clear(i)
             return False
         cap.release()
-    return True
+    return face_ids
 
 
 def create_person(video, simple=True):
     if simple:
-        if create_frames(video):
+        if create_frames_simple(video):
             exist_group(True)
             res = check_all_right(cf.person.create, person_group_id=g_id, name="anonymous")
             if res:
@@ -64,7 +67,7 @@ def create_person(video, simple=True):
                 face_ids = set()
                 for i in range(1, 6):
                     res = check_all_right(cf.person.add_face, person_id=person_id, person_group_id=g_id,
-                                                             image=(str(i) + ".jpg"))
+                                          image=(str(i) + ".jpg"))
                     if res:
                         face_ids.add(res["persistedFaceId"])
                     else:
@@ -122,20 +125,41 @@ def train_group():
         print("There is nothing to train")
 
 
-def get_predict(imgs):
+def get_predict(faces):
     exist_group(True)
-    faces = []
-    for img in imgs:
-
-        faces.append()
-    # new_candidate = list(filter(lambda x: x["confidence"] >= 0.5,
-    #                             cf.face.identify(face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
-    #                                              person_group_id=g_id)[0]["candidates"]))
+    res = check_all_right(cf.face.identify, face_ids=faces, person_group_id=g_id)
+    if res:
+        if any(lambda x: len(x["candidates"]) == 0, res):
+            return False
+        candidates = set(map(lambda x: x["personId"], list(
+            map(lambda can: list(filter(lambda x: x["confidence"] >= 0.5, can["candidates"]))[0],
+                res))))
+        if len(candidates) == 1:
+            return candidates.pop()
+        else:
+            return False
 
 
 def idetify_person(video, simple=True):
     if exist_group():
         res = check_all_right(cf.person_group.get, g_id)
+        if res.setdefault("userData") == "trained":
+            if simple:
+                faces = create_frames_simple(video)
+                if faces:
+                    candidate = get_predict(faces)
+                    if candidate:
+                        open("person.json", "w").write(str({"id": candidate}))
+                    else:
+                        print("The person was not found")
+                else:
+                    print("The video does not follow requirements")
+            else:
+                pass
+        else:
+            print("The service is not ready")
+            if os.path.exists("person.json"):
+                os.remove("person.json")
     else:
         print("The service is not ready")
 
@@ -144,12 +168,13 @@ def find_person(video, simple=True):
     exist_group()
     if simple:
         if is_trained():
-            if create_frames(video):
+            if create_frames_simple(video):
                 for i in range(1, 6):
                     try:
                         new_candidate = list(filter(lambda x: x["confidence"] >= 0.5,
-                                                    cf.face.identify(face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
-                                                                     person_group_id=g_id)[0]["candidates"]))
+                                                    cf.face.identify(
+                                                        face_ids=[cf.face.detect(str(i) + ".jpg")[0]["faceId"]],
+                                                        person_group_id=g_id)[0]["candidates"]))
                         if new_candidate:
                             if i == 1:
                                 candidate = new_candidate[0]["personId"]
@@ -165,7 +190,7 @@ def find_person(video, simple=True):
                         return
                 res = check_all_right(cf.person.get, person_group_id=g_id, person_id=candidate)
                 if res:
-                    open("actions.json", "w").write(str({"id": res["personId"]}))
+                    open("person.json", "w").write(str({"id": res["personId"]}))
             else:
                 print("The person cannot be identified")
         else:
