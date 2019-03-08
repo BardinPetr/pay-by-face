@@ -76,6 +76,15 @@ contract KYCContract {
     }
 
 
+    function isInAddPendingA(address addr) public view returns (bool) {
+        return waitingAddition[addr].isUsed;
+    }
+
+    function isInDelPendingA(address addr) public view returns (bool) {
+        return waitingDeletion[addr].isUsed;
+    }
+
+
     function getWaitingAdditionCnt() public view returns (uint256){
         return addWaitingPhones.length;
     }
@@ -85,57 +94,58 @@ contract KYCContract {
     }
 
 
-    function cancel() public returns (int) {
+    function cancel() public {
         address addr = msg.sender;
-        require(waitingAddition[addr].isUsed || waitingDeletion[addr].isUsed);
-        if(waitingAddition[addr].isUsed) {
+        bool a = isInAddPending();
+        bool b = isInDelPending();
+        require(a || b);
+        if(a) {
             uint256 id = waitingAddition[addr].arrayIndex;
             delete waitingAddition[addr];
             delete addWaitingPhones[id];
-            fixAddWaitingPhones(id);
+            //fixAddWaitingPhones(id);
             emit RegistrationCanceled(msg.sender);
-            return 1;
-        } else if (waitingDeletion[addr].isUsed) {
-            uint256 id1 = waitingDeletion[addr].arrayIndex;
-            delete waitingDeletion[addr];
-            delete delWaitingPhones[id1];
-            fixDelWaitingPhones(id1);
-            emit UnregistrationCanceled(msg.sender);
-            return 2;
         }
-        return 0;
+        if (b) {
+            uint256 id1 = waitingDeletion[addr].arrayIndex;
+            delete delWaitingPhones[id1];
+            delete waitingDeletion[addr];
+            //fixDelWaitingPhones(id1);
+            emit UnregistrationCanceled(msg.sender);
+        }
     }
 
-    function approve(address addr) public onlyOwner returns (int) {
-        require(waitingAddition[addr].isUsed || waitingDeletion[addr].isUsed);
-        if(waitingAddition[addr].isUsed) {
+    function approve(address addr) public onlyOwner {
+        bool a = isInAddPendingA(addr);
+        bool b = isInDelPendingA(addr);
+        require(a || b);
+        if(a) {
             uint256 id = waitingAddition[addr].arrayIndex;
             string memory phone = addWaitingPhones[id].phone;
             data[phone] = UserData({ addr: addr, isUsed: true });
             dataPhones[addr] = UserPhones({ phone: phone, isUsed: true });
             delete waitingAddition[addr];
             delete addWaitingPhones[id];
-            fixAddWaitingPhones(id);
+            //fixAddWaitingPhones(id);
             emit RegistrationConfirmed(addr);
-            return 1;
-        } else if (waitingDeletion[addr].isUsed) {
+        }
+        if (b) {
             uint256 id1 = waitingDeletion[addr].arrayIndex;
             string memory phone1 = delWaitingPhones[id1].phone;
             delete data[phone1];
             delete dataPhones[addr];
             delete waitingDeletion[addr];
             delete delWaitingPhones[id1];
-            fixDelWaitingPhones(id1);
+            //fixDelWaitingPhones(id1);
             emit UnregistrationConfirmed(addr);
-            return 2;
         }
-        return 0;
     }
 
 
     function fixAddWaitingPhones(uint256 id) public {
         if(addWaitingPhones.length > 1) {
             addWaitingPhones[id] = addWaitingPhones[addWaitingPhones.length - 1];
+            waitingAddition[addWaitingPhones[id].addr].arrayIndex = id;
         }
         addWaitingPhones.length -= addWaitingPhones.length == 0 ? 0 : 1;
     }
@@ -143,6 +153,7 @@ contract KYCContract {
     function fixDelWaitingPhones(uint256 id) public {
         if(delWaitingPhones.length > 1) {
             delWaitingPhones[id] = delWaitingPhones[delWaitingPhones.length - 1];
+            waitingDeletion[delWaitingPhones[id].addr].arrayIndex = id;
         }
         delWaitingPhones.length -= delWaitingPhones.length == 0 ? 0 : 1;
     }
