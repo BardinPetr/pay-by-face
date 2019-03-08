@@ -1,4 +1,4 @@
-# NOTE: данный класс не поддерживает эвенты (но они нам и не нужны)
+# TODO: events
 gas_price = None
 user_priv_key = None
 

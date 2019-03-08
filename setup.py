@@ -62,13 +62,12 @@ def chown(contract_name, addr):
     if contract_name == 'registrar':
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
 
-    prev_owner = contract.owner()
-    contract.transferOwnership(addr)
-    cur_owner = contract.owner()
-
-    if cur_owner != prev_owner:
-        print('New admin account: ' + cur_owner)
-
+    # проверка на то, что аккаунт сендера является овнером
+    if contract.isOwner():
+        contract.transferOwnership(Web3.toChecksumAddress(addr))
+        print('New admin account: ' + contract.owner())
+    else:
+        print('Request cannot be executed')
 
 
 commands = {
