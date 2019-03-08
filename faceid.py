@@ -168,7 +168,7 @@ def send(pin, phone, val):
             signed = web3.eth.account.signTransaction(transaction, priv_key)
             tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
 
-            tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+            tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
 
             val, tp = weighing(val)
 
