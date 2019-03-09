@@ -67,7 +67,7 @@ def create_frames_hard(video, type):
             elif type == 3:
                 gray = cv2.cvtColor(im_frame, cv2.COLOR_BGR2GRAY)
                 detector = dlib.get_frontal_face_detector()
-                predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+                predictor = dlib.shape_predictor("/opt/shape_predictor_68_face_landmarks.dat")
                 rects = detector(gray, 0)
                 eye_ar_thresh = 0.3
                 for ind, rect in enumerate(rects):
