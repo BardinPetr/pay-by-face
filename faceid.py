@@ -54,16 +54,19 @@ def send_add_user(args):
             ethWrapper.user_priv_key = pk
             web3.eth.defaultAccount = addr
             contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
-            res = contract.isInAddPending() or contract.getByAddr(addr) != ""
-            if res:
+            if contract.isInAddPending():
                 print("Registration request already sent")
+                return
+            if contract.getByAddr(addr) != "":
+                print("Such phone number already registered")
                 return
         except Exception:
             print("Seems that the contract address is not the registrar contract")
             return
 
         try:
-            res = contract.add(args[1], cb=lambda tx: print("Registration request sent by", tx.hex()))
+            res = contract.add(args[1])
+            print("Registration request sent by", res.transactionHash.hex())
         except Exception as ex:
             print("No funds to send the request", ex)
             return
@@ -99,18 +102,18 @@ def send_del_user(args):
         if contract.isInDelPending():
             print("Unregistration request already sent")
             return
-    except Exception:
+    except:
         print("Seems that the contract address is not the registrar contract.")
         return
 
     try:
-        res = contract.dlt(cb=lambda tx: print("Unregistration request sent by", tx.hex()))
+        res = contract.dlt()
+        print("Unregistration request sent by", res.transactionHash.hex())
     except:
         print("No funds to send the request")
-        return
 
 
-def send_cancel_user(args, ttl=4):
+def send_cancel_user(args):
     addr, pk = None, None
     try:
         pk = get_private_key(parceJson('person.json')['id'], args[0])
@@ -138,15 +141,11 @@ def send_cancel_user(args, ttl=4):
             return
     except Exception:
         print("Seems that the contract address is not the registrar contract.")
-        return
 
     try:
-        res = contract.cancel(cb=lambda tx: print(("R" if mode else "Unr") + "egistration canceled by", tx.hex()))
-    except Exception as ex:
-        if str(ex).find('-32016') > -1:
-            return
-        if ttl > 0:
-            send_cancel_user(args, ttl - 1)
+        res = contract.cancel()
+        print(("R" if mode else "Unr") + "egistration canceled by", res.transactionHash.hex())
+    except:
         print("No funds to send the request")
 
 
@@ -200,28 +199,29 @@ def send(a):
 
 def idetify_person(video):
     simple = not os.path.exists("actions.json")
-    if exist_group():
-        res = check_all_right(cf.person_group.get, g_id)
-        if res.setdefault("userData") == "trained":
-            if simple:
-                faces = create_frames_simple(video)
-                if faces:
+    faces = create_frames_simple(video)
+    if faces:
+        if exist_group():
+            res = check_all_right(cf.person_group.get, g_id)
+            if res.setdefault("userData") == "trained":
+                if simple:
                     candidate = get_predict(faces)
                     if candidate:
+                        print(candidate, "identified")
                         open("person.json", "w").write(str({"id": candidate}))
                     else:
                         print("The person was not found")
                     clear(5)
                 else:
-                    print("The video does not follow requirements")
+                    pass
             else:
-                pass
+                print("The service is not ready")
+                if os.path.exists("person.json"):
+                    os.remove("person.json")
         else:
             print("The service is not ready")
-            if os.path.exists("person.json"):
-                os.remove("person.json")
     else:
-        print("The service is not ready")
+        print("The video does not follow requirements")
 
 
 def ops(a):
@@ -229,8 +229,8 @@ def ops(a):
     addr = toAddress(pvk)
 
     response = getData('https://blockscout.com/poa/sokol/api', params={
-        'module':'account',
-        'action':'txlist',
+        'module': 'account',
+        'action': 'txlist',
         'address': addr,
         'startblock': parceJson('registrar.json')['registrar']['startBlock']}).json()['result']
 

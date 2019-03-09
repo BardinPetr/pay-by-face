@@ -1,3 +1,5 @@
+from time import sleep
+
 gas_price = None
 user_priv_key = None
 
@@ -23,16 +25,21 @@ class ContractWrapper:
 
         # setup constructor
         def construct(*args, **kwargs):
-            tx = contract.constructor(*args, **kwargs).buildTransaction({
-                'gasPrice': gas_price,
-                'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
-            })
+            tx_receipt = None
+            for i in range(100):
+                try:
+                    tx = contract.constructor(*args, **kwargs).buildTransaction({
+                        'gasPrice': gas_price,
+                        'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
+                    })
 
-            signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
-            tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
+                    signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+                    tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
-            tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-
+                    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                    break
+                except:
+                    pass
             return tx_receipt
 
         setattr(self, 'constructor', construct)
@@ -52,24 +59,29 @@ class ContractWrapper:
                     elif elem['stateMutability'] == 'nonpayable' or elem['stateMutability'] == 'pure':
                         def funct(name):
                             def func(*args, **kwargs):
-                                cb = kwargs.pop("cb") if 'cb' in kwargs.keys() else lambda x: None
+                                tx_receipt = None
+                                for i in range(20):
+                                    try:
+                                        data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
 
-                                tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
-                                    'gasPrice': gas_price,
-                                    'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
-                                })
+                                        tx = {
+                                            'to': contract.address,
+                                            'value': 0,
+                                            'gas': 1000000,
+                                            'gasPrice': gas_price,
+                                            'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount),
+                                            'data': data
+                                        }
 
-                                signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
-                                tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
-
-                                cb(tx_hash)
-
-                                tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                        signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+                                        tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
+                                        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                        break
+                                    except:
+                                        sleep(8)
                                 return tx_receipt
 
                             return func
-
                     setattr(self, elem['name'], funct(elem['name']))
-
                 except:
                     pass
