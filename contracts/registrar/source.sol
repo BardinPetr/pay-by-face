@@ -61,7 +61,7 @@ contract KYCContract {
             !waitingDeletion[snd].isUsed &&
             dataPhones[snd].isUsed);
         delWaitingPhones.push(User({ addr: snd, phone: dataPhones[snd].phone, isUsed: true }));
-        waitingDeletion[snd] = ApprovementWaiting( { arrayIndex: addWaitingPhones.length - 1, isUsed: true } );
+        waitingDeletion[snd] = ApprovementWaiting( { arrayIndex: delWaitingPhones.length - 1, isUsed: true } );
         emit UnregistrationRequest(msg.sender);
         return true;
     }
@@ -103,14 +103,14 @@ contract KYCContract {
             uint256 id = waitingAddition[addr].arrayIndex;
             delete waitingAddition[addr];
             delete addWaitingPhones[id];
-            //fixAddWaitingPhones(id);
+            fixAddWaitingPhones(id);
             emit RegistrationCanceled(msg.sender);
         }
         if (b) {
             uint256 id1 = waitingDeletion[addr].arrayIndex;
             delete delWaitingPhones[id1];
             delete waitingDeletion[addr];
-            //fixDelWaitingPhones(id1);
+            fixDelWaitingPhones(id1);
             emit UnregistrationCanceled(msg.sender);
         }
     }
@@ -126,7 +126,7 @@ contract KYCContract {
             dataPhones[addr] = UserPhones({ phone: phone, isUsed: true });
             delete waitingAddition[addr];
             delete addWaitingPhones[id];
-            //fixAddWaitingPhones(id);
+            fixAddWaitingPhones(id);
             emit RegistrationConfirmed(addr);
         }
         if (b) {
@@ -136,7 +136,7 @@ contract KYCContract {
             delete dataPhones[addr];
             delete waitingDeletion[addr];
             delete delWaitingPhones[id1];
-            //fixDelWaitingPhones(id1);
+            fixDelWaitingPhones(id1);
             emit UnregistrationConfirmed(addr);
         }
     }

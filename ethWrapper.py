@@ -59,6 +59,9 @@ class ContractWrapper:
                                 signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
                                 tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
+                                if 'cb' in kwargs.keys():
+                                    kwargs.cb(tx_hash)
+
                                 tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
                                 return tx_receipt
