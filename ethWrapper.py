@@ -49,7 +49,7 @@ class ContractWrapper:
 
                             return func
 
-                    elif elem['stateMutability'] == 'nonpayable':
+                    elif elem['stateMutability'] == 'nonpayable' or elem['stateMutability'] == 'pure':
                         def funct(name):
                             def func(*args, **kwargs):
                                 cb = kwargs.pop("cb") if 'cb' in kwargs.keys() else lambda x: None

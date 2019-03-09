@@ -8,6 +8,7 @@ from tools import *
 import ethWrapper
 from requests import get as getData
 import re
+from datetime import datetime
 
 ### Put your code below this comment ###
 
@@ -169,7 +170,7 @@ def send(a):
     web3.eth.defaultAccount = addr
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
-    #registrar.send_point()
+    registrar.sending_point()
     sendto_addr = registrar.get(phone)
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
@@ -235,12 +236,14 @@ def ops(a):
 
     registrar = web3.eth.contract(abi=registrar_ABI)
 
-    for i in response:
-        func_name = type(registrar.decode_function_input(response[0]['input'])[0]).__name__
-
-        if func_name == 'send_point':
-            print(response[0])
-
+    for tx in response:
+        try:
+            func_name = type(registrar.decode_function_input(tx['input'])[0]).__name__
+            timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%Y-%m-%d %H:%M:%S')
+            send_type = 'FROM:'
+            print(timing, send_type, tx['input'])[1], )
+        except:
+            pass
 
 commands = {
     'balance': request_balance,
