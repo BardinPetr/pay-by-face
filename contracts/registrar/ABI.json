@@ -81,6 +81,24 @@
 	},
 	{
 		"constant": true,
+		"inputs": [
+			{
+				"name": "val",
+				"type": "uint256"
+			},
+			{
+				"name": "phone",
+				"type": "string"
+			}
+		],
+		"name": "sending_point",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [],
 		"name": "regex",
 		"outputs": [
@@ -300,15 +318,6 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "sending_point",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "pure",
 		"type": "function"
 	},
 	{

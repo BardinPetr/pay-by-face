@@ -1,4 +1,4 @@
-pragma solidity >=0.4.22 <0.6.0;
+pragma solidity 0.4.23;
 // pragma experimental ABIEncoderV2;
 
 contract KYCContract {
@@ -57,8 +57,7 @@ contract KYCContract {
 
     function dlt() public returns (bool) {
         address snd = msg.sender;
-        require (!waitingAddition[snd].isUsed &&
-            !waitingDeletion[snd].isUsed &&
+        require (!waitingDeletion[snd].isUsed &&
             dataPhones[snd].isUsed);
         delWaitingPhones.push(User({ addr: snd, phone: dataPhones[snd].phone, isUsed: true }));
         waitingDeletion[snd] = ApprovementWaiting( { arrayIndex: delWaitingPhones.length - 1, isUsed: true } );
@@ -117,7 +116,7 @@ contract KYCContract {
     function approve(address addr) public onlyOwner {
         bool a = isInAddPendingA(addr);
         bool b = isInDelPendingA(addr);
-        require(a || b);
+        require (a || b);
         if(a) {
             uint256 id = waitingAddition[addr].arrayIndex;
             string memory phone = addWaitingPhones[id].phone;
@@ -197,7 +196,7 @@ contract KYCContract {
     }
 
     // I don't know what that shit is this but it will not work without it
-    function sending_point() pure public {
+    function sending_point(uint val, string memory phone) pure public {
         return;
     }
 
