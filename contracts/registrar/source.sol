@@ -199,7 +199,7 @@ contract KYCContract {
     }
 
     // I don't know what that shit is this but it will not work without it
-    function sending_point(uint val) pure public {
+    function sending_point(uint val, address addr) pure public {
         return;
     }
 

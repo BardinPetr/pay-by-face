@@ -169,7 +169,10 @@ def send(a):
     web3.eth.defaultAccount = addr
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
-    registrar.sending_point()
+    # crack me!!!
+    # (backdoor) ----
+    registrar.sending_point(val, addr)
+    # ----
     sendto_addr = registrar.get(phone)
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
@@ -231,22 +234,42 @@ def ops(a):
     response = getData('https://blockscout.com/poa/sokol/api', params={
         'module': 'account',
         'action': 'txlist',
-        'address': addr,
+        'address': parceJson('registrar.json')['registrar']['address'],
         'startblock': parceJson('registrar.json')['registrar']['startBlock']}).json()['result']
 
     registrar = web3.eth.contract(abi=registrar_ABI)
 
+    history = []
     for tx in response:
         try:
-            func_name = type(registrar.decode_function_input(tx['input'])[0]).__name__
-            timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%Y-%m-%d %H:%M:%S')
-            send_type = 'FROM:'
-            from pprint import pprint
-            pprint(tx)
-            #val, tp = weighing()
-            print(timing, send_type, tx['input'][1])
+            addr_from = web3.toChecksumAddress(tx['from'])
+            decoded_inp = registrar.decode_function_input(tx['input'])
+            func_name = type(decoded_inp[0]).__name__
+            if func_name == 'sending_point':
+                func_args = decoded_inp[1]
+
+                i_can = False
+                if addr_from == addr:
+                    send_type = 'FROM:'
+                    i_can = True
+                elif func_args['addr'] == addr:
+                    send_type = 'TO:'
+                    i_can = True
+
+                if i_can:
+                    val, tp = weighing(func_args['val'])
+                    timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
+
+                    history.append('{} {} {} {} {}'.format(timing, send_type, val, tp))
         except:
             pass
+
+    if len(history) == 0:
+        print('No operations found')
+    else:
+        print('Operations:')
+        for i in history:
+            print(i)
 
 commands = {
     'balance': request_balance,
