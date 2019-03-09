@@ -17,9 +17,9 @@ cf.BaseUrl.set(base_url)
 g_id = api_data["groupId"]
 
 
-def create_person(video, simple=True):
+def create_person(*args, simple=True):
     if simple:
-        if create_frames_simple(video):
+        if create_frames_simple(args[0]):
             exist_group(True)
             res = check_all_right(cf.person.create, person_group_id=g_id, name="anonymous")
             if res:
@@ -38,7 +38,9 @@ def create_person(video, simple=True):
         else:
             print("Video does not contain any face")
     else:
-        pass
+        if create_frames_simple(args[0]):
+            exist_group(True)
+
 
 
 def delete_person(person_id):
@@ -101,6 +103,8 @@ if __name__ == "__main__":
     check_all_right()
     if sys.argv[1] == "--simple-add":
         create_person(sys.argv[2])
+    elif sys.argv[1] == "--add":
+        create_person(*sys.argv[2::2], simple=False)
     elif sys.argv[1] == "--del":
         delete_person(sys.argv[2])
     elif sys.argv[1] == "--list":
