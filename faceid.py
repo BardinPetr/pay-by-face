@@ -6,6 +6,7 @@ from sys import argv
 
 from tools import *
 import ethWrapper
+from requests import get as getData
 import re
 
 ### Put your code below this comment ###
@@ -221,13 +222,29 @@ def idetify_person(video):
         print("The service is not ready")
 
 
+def ops(a):
+    pvk = get_private_key(parceJson('person.json')['id'], a[0])
+    addr = toAddress(pvk)
+
+    response = getData('https://blockscout.com/poa/sokol/api', params={
+        'module':'account',
+        'action':'txlist',
+        'address': addr,
+        'startblock': parceJson('registrar.json')['registrar']['startBlock']}).json()
+
+    print(response['result'])
+
+
+
+
 commands = {
     'balance': request_balance,
     'add': send_add_user,
     'del': send_del_user,
     'cancel': send_cancel_user,
     'send': send,
-    'find': idetify_person
+    'find': idetify_person,
+    'ops': ops
 }
 # === Entry point === #
 if __name__ == '__main__':
