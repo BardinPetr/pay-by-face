@@ -305,6 +305,15 @@
 	{
 		"constant": true,
 		"inputs": [],
+		"name": "sending_point",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
 		"name": "isInDelPending",
 		"outputs": [
 			{

@@ -53,6 +53,7 @@ class ContractWrapper:
                         def funct(name):
                             def func(*args, **kwargs):
                                 cb = kwargs.pop("cb") if 'cb' in kwargs.keys() else lambda x: None
+
                                 tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
                                     'gasPrice': gas_price,
                                     'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)

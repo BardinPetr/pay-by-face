@@ -43,16 +43,26 @@ def confirm(addr, ttl=2):
         print("Seems that the contract address is not the registrar contract.")
         return
 
-    def print_res(tx):
-        if not tx['status']:
-            print("Failed but included in", tx.hex())
-        else:
-            print("Confirmed by", tx.hex())
+    tx = None
+
+    def save_tx(_tx):
+        global tx
+        print(0, _tx)
+        tx = _tx
 
     try:
-        res = contract.approve(addr, cb=print_res)
-    except:
-        pass
+        res = contract.approve(
+            addr,
+            cb=lambda x: save_tx(x))
+        print("Confirmed by" if res.status else "Failed but included in", res.transactionHash.hex())
+    except Exception as ex:
+        print(tx)
+        if str(ex).find('-32016') > -1 or str(ex).find('-32010') > -1:
+            print("Failed but included in", tx.hex())
+            return
+        if ttl > 0:
+            return confirm(addr, ttl - 1)
+        print("No funds to send the request")
 
 
 def list(list_name, ttl=2):
