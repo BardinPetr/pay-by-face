@@ -1,6 +1,7 @@
 gas_price = None
 user_priv_key = None
 
+
 class ContractWrapper:
     def __init__(self, w3=None, **kwargs):
         """
@@ -36,7 +37,6 @@ class ContractWrapper:
 
         setattr(self, 'constructor', construct)
 
-
         # setup contract methods
         for elem in kwargs['abi']:
             if 'name' in elem:
@@ -46,25 +46,26 @@ class ContractWrapper:
                         def funct(name):
                             def func(*args, **kwargs):
                                 return getattr(contract.functions, name)(*args, **kwargs).call()
+
                             return func
 
                     elif elem['stateMutability'] == 'nonpayable':
                         def funct(name):
                             def func(*args, **kwargs):
+                                cb = kwargs.pop("cb") if 'cb' in kwargs.keys() else lambda x: None
                                 tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
                                     'gasPrice': gas_price,
                                     'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
-                                    })
+                                })
 
                                 signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
                                 tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
-                                if 'cb' in kwargs.keys():
-                                    kwargs.cb(tx_hash)
+                                cb(tx_hash)
 
                                 tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-
                                 return tx_receipt
+
                             return func
 
                     setattr(self, elem['name'], funct(elem['name']))

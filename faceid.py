@@ -29,7 +29,7 @@ def request_balance(args):
     except TypeError:
         print("ID is not found")
 
-
+    
 def send_add_user(args):
     addr, pk = None, None
     try:
@@ -61,10 +61,9 @@ def send_add_user(args):
             return
 
         try:
-            res, tx = contract.add(args[1])
-            print("Registration request sent by", res['transactionHash'].hex())
-        except:
-            print("No funds to send the request")
+            res = contract.add(args[1], cb=lambda tx: print("Registration request sent by", tx.hex()))
+        except Exception as ex:
+            print("No funds to send the request", ex)
             return
     else:
         print("Incorrect phone number")
@@ -103,8 +102,7 @@ def send_del_user(args):
         return
 
     try:
-        res, tx = contract.dlt()
-        print("Unregistration request sent by", res['transactionHash'].hex())
+        res = contract.dlt(cb=lambda tx: print("Unregistration request sent by", tx.hex()))
     except:
         print("No funds to send the request")
         return
@@ -141,8 +139,7 @@ def send_cancel_user(args, ttl=4):
         return
 
     try:
-        res, tx = contract.cancel(cb=lambda tx: print(("R" if mode else "Unr") + "egistration canceled by", tx.hex()))
-        exit(0)
+        res = contract.cancel(cb=lambda tx: print(("R" if mode else "Unr") + "egistration canceled by", tx.hex()))
     except Exception as ex:
         if str(ex).find('-32016') > -1:
             return

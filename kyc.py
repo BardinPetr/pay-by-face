@@ -5,7 +5,6 @@ import sys
 from ethWrapper import ContractWrapper
 from network import *
 
-
 # === Commands === #
 from tools import get_private_key
 
@@ -44,57 +43,58 @@ def confirm(addr, ttl=2):
         print("Seems that the contract address is not the registrar contract.")
         return
 
-    try:
-        res, tx = contract.approve(addr)
-        if not res['status']:
+    def print_res(tx):
+        if not tx['status']:
             print("Failed but included in", tx.hex())
         else:
             print("Confirmed by", tx.hex())
-        exit(0)
-    except Exception as ex:
-        if ttl > 0:
-            confirm(addr, ttl-1)
-        print("No funds to send the request")
-        print(ex)
-        exit(0)
+
+    try:
+        res = contract.approve(addr, cb=print_res)
+    except:
+        pass
 
 
-def list(list_name):
+def list(list_name, ttl=2):
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
-    if list_name == 'add':
-        addlist_len = registrar.getWaitingAdditionCnt()
+    try:
+        if list_name == 'add':
+            addlist_len = registrar.getWaitingAdditionCnt()
 
-        if addlist_len == 0:
-            print('No KYC registration requests found')
-        else:
-            phones_list = []
-            for i in range(addlist_len):
-                elem = registrar.addWaitingPhones(i)
-                phones_list.append(elem)
+            if addlist_len == 0:
+                print('No KYC registration requests found')
+            else:
+                phones_list = []
+                for i in range(addlist_len):
+                    elem = registrar.addWaitingPhones(i)
+                    phones_list.append(elem)
 
-            phones_list.sort(key=lambda x: (x[1], x[0]))
+                phones_list.sort(key=lambda x: (x[1], x[0]))
 
-            for addr, phone, _ in phones_list:
-                if addr != "0x0000000000000000000000000000000000000000":
-                    print('{}: {}'.format(addr, phone))
+                for addr, phone, _ in phones_list:
+                    if addr != "0x0000000000000000000000000000000000000000":
+                        print('{}: {}'.format(addr, phone))
 
-    elif list_name == 'del':
-        dltlist_len = registrar.getWaitingDeletionCnt()
+        elif list_name == 'del':
+            dltlist_len = registrar.getWaitingDeletionCnt()
 
-        if dltlist_len == 0:
-            print('No KYC unregistration requests found')
-        else:
-            phones_list = []
-            for i in range(dltlist_len):
-                elem = registrar.delWaitingPhones(i)
-                phones_list.append(elem)
+            if dltlist_len == 0:
+                print('No KYC unregistration requests found')
+            else:
+                phones_list = []
+                for i in range(dltlist_len):
+                    elem = registrar.delWaitingPhones(i)
+                    phones_list.append(elem)
 
-            phones_list.sort(key=lambda x: (x[1], x[0]))
+                phones_list.sort(key=lambda x: (x[1], x[0]))
 
-            for addr, phone, _ in phones_list:
-                if addr != "0x0000000000000000000000000000000000000000":
-                    print('{}: {}'.format(addr, phone))
+                for addr, phone, _ in phones_list:
+                    if addr != "0x0000000000000000000000000000000000000000":
+                        print('{}: {}'.format(addr, phone))
+    except ValueError:
+        if ttl > 0:
+            return list(list_name, ttl=ttl - 1)
 
 
 commands = {
