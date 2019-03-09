@@ -250,9 +250,11 @@ def ops(a):
 
                 i_can = False
                 if addr_from == addr:
+                    phone = registrar.getByAddr(addr_from)
                     send_type = 'FROM:'
                     i_can = True
                 elif func_args['addr'] == addr:
+                    phone = registrar.getByAddr(addr_from)
                     send_type = 'TO:'
                     i_can = True
 
@@ -260,7 +262,7 @@ def ops(a):
                     val, tp = weighing(func_args['val'])
                     timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
 
-                    history.append('{} {} {} {} {}'.format(timing, send_type, val, tp))
+                    history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
         except:
             pass
 
