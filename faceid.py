@@ -59,15 +59,15 @@ def send_add_user(args):
             if contract.getByAddr(addr) != "":
                 print("Such phone number already registered")
                 return
-        except Exception:
+        except:
             print("Seems that the contract address is not the registrar contract")
             return
 
         try:
             res = contract.add(args[1])
             print("Registration request sent by", res.transactionHash.hex())
-        except Exception as ex:
-            print("No funds to send the request", ex)
+        except:
+            print("No funds to send the request")
             return
     else:
         print("Incorrect phone number")
@@ -78,7 +78,7 @@ def send_del_user(args):
     try:
         pk = get_private_key(parceJson('person.json')['id'], args[0])
         addr = toAddress(pk)
-    except TypeError:
+    except:
         print("ID is not found")
         return
 
@@ -117,7 +117,7 @@ def send_cancel_user(args):
     try:
         pk = get_private_key(parceJson('person.json')['id'], args[0])
         addr = toAddress(pk)
-    except TypeError:
+    except:
         print("ID is not found")
         return
 
@@ -138,7 +138,7 @@ def send_cancel_user(args):
         if not mode and not contract.isInDelPending():
             print("No requests found")
             return
-    except Exception:
+    except:
         print("Seems that the contract address is not the registrar contract.")
 
     try:
@@ -160,7 +160,7 @@ def send(a):
     try:
         priv_key = get_private_key(parceJson('person.json')['id'], pin)
         addr = toAddress(priv_key)
-    except TypeError:
+    except:
         print("ID is not found")
         return
 
@@ -190,8 +190,8 @@ def send(a):
 
             print('Payment of {} {} to {} scheduled'.format(val, tp, phone))
             print('Transaction Hash: ' + web3.toHex(tx_hash))
-        except Exception as ex:
-            print('No funds to send the payment', ex)
+        except:
+            print('No funds to send the payment')
     else:
         print('No account with the phone number: ' + phone)
 
