@@ -81,10 +81,10 @@ def create_frames_hard(video, type):
                     right_eye = shape[rStart:rEnd]
                     left_ear = eye_aspect_ratio(left_eye)
                     right_ear = eye_aspect_ratio(right_eye)
-                    if (left_ear < eye_ar_thresh) & (right_ear > eye_ar_thresh) & (not all_nice[0]):
+                    if (left_ear > eye_ar_thresh) & (right_ear < eye_ar_thresh) & (not all_nice[0]):
                         cv2.imwrite("left_eye.jpg", gray)
                         all_nice[0] = 1
-                    elif (left_ear > eye_ar_thresh) & (right_ear < eye_ar_thresh) & (not all_nice[0]):
+                    elif (left_ear < eye_ar_thresh) & (right_ear > eye_ar_thresh) & (not all_nice[0]):
                         cv2.imwrite("right_eye.jpg", gray)
                         all_nice[1] = 1
                     if sum(all_nice) == 2:
