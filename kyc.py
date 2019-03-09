@@ -5,7 +5,6 @@ import sys
 from ethWrapper import ContractWrapper
 from network import *
 
-
 # === Commands === #
 from tools import get_private_key
 
@@ -40,64 +39,70 @@ def confirm(addr, ttl=2):
     contract, mode = None, 0
     try:
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
-        # mode = contract.isInAddPendingA(addr)
-        # if not mode and not contract.isInDelPendingA(addr):
-        #     print("No requests found")
-        #     return
     except Exception:
         print("Seems that the contract address is not the registrar contract.")
         return
 
+    tx = None
+
+    def save_tx(_tx):
+        global tx
+        tx = _tx
+
     try:
-        res = contract.approve(addr)
-        if not res['status']:
-            print("Failed but included in", res['transactionHash'].hex())
-        else:
-            print("Confirmed by", res['transactionHash'].hex())
-            exit(0)
+        res = contract.approve(
+            addr,
+            cb=lambda x: save_tx(x))
+        print("Confirmed by" if res.status else "Failed but included in", res.transactionHash.hex())
     except Exception as ex:
+        if str(ex).find('-32016') > -1 or str(ex).find('-32010') > -1:
+            print("Failed but included in")
+            return
         if ttl > 0:
-            confirm(addr, ttl-1)
+            return confirm(addr, ttl - 1)
         print("No funds to send the request")
-        exit(0)
 
 
-def list(list_name):
+def list(list_name, ttl=2):
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
-    if list_name == 'add':
-        addlist_len = registrar.getWaitingAdditionCnt()
+    try:
+        if list_name == 'add':
+            addlist_len = registrar.getWaitingAdditionCnt()
 
-        if addlist_len == 0:
-            print('No KYC registration requests found')
-        else:
-            phones_list = []
-            for i in range(addlist_len):
-                elem = registrar.addWaitingPhones(i)
-                phones_list.append(elem)
+            if addlist_len == 0:
+                print('No KYC registration requests found')
+            else:
+                phones_list = []
+                for i in range(addlist_len):
+                    elem = registrar.addWaitingPhones(i)
+                    phones_list.append(elem)
 
-            phones_list.sort(key=lambda x: (x[1], x[0]))
+                phones_list.sort(key=lambda x: (x[1], x[0]))
 
-            for addr, phone, _ in phones_list:
-                if addr != "0x0000000000000000000000000000000000000000":
-                    print('{}: {}'.format(addr, phone))
+                for addr, phone, _ in phones_list:
+                    if addr != "0x0000000000000000000000000000000000000000":
+                        print('{}: {}'.format(addr, phone))
 
-    elif list_name == 'del':
-        dltlist_len = registrar.getWaitingDeletionCnt()
+        elif list_name == 'del':
+            dltlist_len = registrar.getWaitingDeletionCnt()
 
-        if dltlist_len == 0:
-            print('No KYC unregistration requests found')
-        else:
-            phones_list = []
-            for i in range(dltlist_len):
-                elem = registrar.delWaitingPhones(i)
-                phones_list.append(elem)
+            if dltlist_len == 0:
+                print('No KYC unregistration requests found')
+            else:
+                phones_list = []
+                for i in range(dltlist_len):
+                    elem = registrar.delWaitingPhones(i)
+                    phones_list.append(elem)
 
-            phones_list.sort(key=lambda x: (x[1], x[0]))
+                phones_list.sort(key=lambda x: (x[1], x[0]))
 
-            for addr, phone, _ in phones_list:
-                if addr != "0x0000000000000000000000000000000000000000":
-                    print('{}: {}'.format(addr, phone))
+                for addr, phone, _ in phones_list:
+                    if addr != "0x0000000000000000000000000000000000000000":
+                        print('{}: {}'.format(addr, phone))
+    except ValueError:
+        if ttl > 0:
+            return list(list_name, ttl=ttl - 1)
 
 
 commands = {
