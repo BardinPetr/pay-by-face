@@ -20,7 +20,7 @@ def get(phone_number):
         print('Correspondence not found')
 
 
-def confirm(addr):
+def confirm(addr, ttl=2):
     try:
         _datafile = parceJson('network.json')
         ethWrapper.user_priv_key = _datafile['privKey']
@@ -40,20 +40,26 @@ def confirm(addr):
     contract, mode = None, 0
     try:
         contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
-        mode = contract.getByAddr(addr) == ""
+        # mode = contract.isInAddPendingA(addr)
+        # if not mode and not contract.isInDelPendingA(addr):
+        #     print("No requests found")
+        #     return
     except Exception:
         print("Seems that the contract address is not the registrar contract.")
         return
 
     try:
         res = contract.approve(addr)
-        if not res[0]['status']:
-            print("Failed but included in", res[0]['transactionHash'].hex())
+        if not res['status']:
+            print("Failed but included in", res['transactionHash'].hex())
         else:
-            print("Confirmed by", res[0]['transactionHash'].hex())
-    except Exception:
+            print("Confirmed by", res['transactionHash'].hex())
+            exit(0)
+    except Exception as ex:
+        if ttl > 0:
+            confirm(addr, ttl-1)
         print("No funds to send the request")
-        return
+        exit(0)
 
 
 def list(list_name):
@@ -73,7 +79,8 @@ def list(list_name):
             phones_list.sort(key=lambda x: (x[1], x[0]))
 
             for addr, phone, _ in phones_list:
-                print('{}: {}'.format(addr, phone))
+                if addr != "0x0000000000000000000000000000000000000000":
+                    print('{}: {}'.format(addr, phone))
 
     elif list_name == 'del':
         dltlist_len = registrar.getWaitingDeletionCnt()
@@ -89,7 +96,8 @@ def list(list_name):
             phones_list.sort(key=lambda x: (x[1], x[0]))
 
             for addr, phone, _ in phones_list:
-                print('{}: {}'.format(addr, phone))
+                if addr != "0x0000000000000000000000000000000000000000":
+                    print('{}: {}'.format(addr, phone))
 
 
 commands = {
