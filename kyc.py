@@ -47,7 +47,6 @@ def confirm(addr, ttl=2):
 
     def save_tx(_tx):
         global tx
-        print(0, _tx)
         tx = _tx
 
     try:
@@ -56,9 +55,8 @@ def confirm(addr, ttl=2):
             cb=lambda x: save_tx(x))
         print("Confirmed by" if res.status else "Failed but included in", res.transactionHash.hex())
     except Exception as ex:
-        print(tx)
         if str(ex).find('-32016') > -1 or str(ex).find('-32010') > -1:
-            print("Failed but included in", tx.hex())
+            print("Failed but included in")
             return
         if ttl > 0:
             return confirm(addr, ttl - 1)
