@@ -305,6 +305,15 @@
 	{
 		"constant": true,
 		"inputs": [],
+		"name": "sending_point",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
 		"name": "isInDelPending",
 		"outputs": [
 			{
@@ -325,12 +334,7 @@
 			}
 		],
 		"name": "approve",
-		"outputs": [
-			{
-				"name": "",
-				"type": "int256"
-			}
-		],
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -339,12 +343,7 @@
 		"constant": false,
 		"inputs": [],
 		"name": "cancel",
-		"outputs": [
-			{
-				"name": "",
-				"type": "int256"
-			}
-		],
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
