@@ -104,7 +104,7 @@ def send_del_user(args):
             print("Unregistration request already sent")
             return
     except:
-        print("Seems that the contract address is not the registrar contract.")
+        print("Seems that the contract address is not the registrar contract")
         return
 
     try:
@@ -141,7 +141,7 @@ def send_cancel_user(args):
             print("No requests found")
             return
     except:
-        print("Seems that the contract address is not the registrar contract.")
+        print("Seems that the contract address is not the registrar contract")
 
     try:
         res = contract.cancel()
