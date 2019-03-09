@@ -4,6 +4,8 @@ from web3 import HTTPProvider, Web3, eth
 from ethWrapper import ContractWrapper, gas_price
 from requests import get as getData
 from sys import argv
+
+from network import contracts_data
 from tools import *
 import ethWrapper
 import re
