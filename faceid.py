@@ -3,7 +3,7 @@
 from network import contracts_data
 from ethWrapper import ContractWrapper, gas_price
 from sys import argv
-
+import json
 from tools import *
 import ethWrapper
 from requests import get as getData
@@ -207,7 +207,8 @@ def idetify_person(video):
                     candidate = get_predict(faces)
                     if candidate:
                         print(candidate, "identified")
-                        open("person.json", "w").write(str({"id": candidate}))
+                        with open('person.json', 'w') as outfile:
+                            json.dump({"id": candidate}, outfile)
                     else:
                         print("The person was not found")
                     clear(5)
