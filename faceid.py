@@ -198,29 +198,29 @@ def send(a):
 
 def idetify_person(video):
     simple = not os.path.exists("actions.json")
-    if exist_group():
-        res = check_all_right(cf.person_group.get, g_id)
-        if res.setdefault("userData") == "trained":
-            if simple:
-                faces = create_frames_simple(video)
-                if faces:
+    faces = create_frames_simple(video)
+    if faces:
+        if exist_group():
+            res = check_all_right(cf.person_group.get, g_id)
+            if res.setdefault("userData") == "trained":
+                if simple:
                     candidate = get_predict(faces)
                     if candidate:
+                        print(candidate, "identified")
                         open("person.json", "w").write(str({"id": candidate}))
                     else:
                         print("The person was not found")
                     clear(5)
                 else:
-                    print("The video does not follow requirements")
+                    pass
             else:
-                pass
+                print("The service is not ready")
+                if os.path.exists("person.json"):
+                    os.remove("person.json")
         else:
             print("The service is not ready")
-            if os.path.exists("person.json"):
-                os.remove("person.json")
     else:
-        print("The service is not ready")
-
+        print("The video does not follow requirements")
 
 commands = {
     'balance': request_balance,
