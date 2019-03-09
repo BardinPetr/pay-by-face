@@ -30,7 +30,7 @@ def request_balance(args):
     except TypeError:
         print("ID is not found")
 
-    
+
 def send_add_user(args):
     addr, pk = None, None
     try:
@@ -169,6 +169,7 @@ def send(a):
     web3.eth.defaultAccount = addr
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
+    registrar.send_point()
     sendto_addr = registrar.get(phone)
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
@@ -230,11 +231,15 @@ def ops(a):
         'module':'account',
         'action':'txlist',
         'address': addr,
-        'startblock': parceJson('registrar.json')['registrar']['startBlock']}).json()
+        'startblock': parceJson('registrar.json')['registrar']['startBlock']}).json()['result']
 
-    print(response['result'])
+    registrar = web3.eth.contract(abi=registrar_ABI)
 
+    for i in response:
+        func_name = type(registrar.decode_function_input(response[0]['input'])[0]).__name__
 
+        if func_name == 'send_point':
+            print(response[0])
 
 
 commands = {
