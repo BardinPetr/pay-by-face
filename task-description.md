@@ -1,5 +1,51 @@
-Финальная задача профиля ФинТех ОНТИ 2018/19 
+Материалы для заключительного этапа профиля ФТ ОНТИ 2018/19 
 ====
+
+# Финальная задача
+
+## Декомпозиция финальной задачи 
+
+### Распознавание лица
+1. подготовить данные для обучения для нескольких пользователей.
+  * Для каждого пользователя:
+    * зафиксировать 5 кадров при повороте головы направо и налево не меньше чем на 40 градусов в каждую из сторон, шаг поворота головы между соседними кадрами 20 градусов.
+    * зафиксировать 5 кадров при наклоне головы вправо и влево не меньше чем на 30 градусов в каждую из сторон, шаг наклона головы между соседними кадрами 15 градусов.
+    * зафиксировать по одному кадру отдельно с закрытым правым глазом и отдельно с закрытым левым глазом.
+    * зафиксировать один кадр с открытым ртом.  
+  * Контролировать скорость поворота и наклона головы таким образом, чтобы было достаточно обращения скорости обращения к MS FaceAPI 20 кадров в секунду.     
+2. отослать данные для обучения на MS Face API
+3. получить изображение пользователя
+4. сделать запрос к MS Face API для получения предположения по пользователю
+5. убедиться через проверку действия пользователя, что изображение пользователя реально
+  * Сформировать случайным образом требуемую последовательность действий пользователя. Возможные действия:
+     * поворот головы направо, угол максимального поворота выбирается случайным образом
+     * поворот головы налево, угол максимального поворота выбирается случайным образом
+     * наклон головы вправо, угол максимального наклона выбирается случайным образом
+     * наклон головы влево, угол максимального наклона выбирается случайным образом
+     * закрыть правый глаз
+     * закрыть левый глаз
+     * открыть рот
+    В сформированных действиях не должно быть 2 поворота и/или наклона. Всего действий должно быть 3 или 4.
+  * Контролировать скорость поворота и наклона головы таким образом, чтобы было достаточно обращения скорости обращения к MS FaceAPI 20 кадров в секунду.
+  * Контролировать длительность фиксации действия пользователя - пользователь должен зафиксировать данное действие на время не меньше 3 секунд для наклонов и поворотов и не меньше 1.5 секунд для закрытых глаз и открытого рта.
+  * Контролировать требуемый порядок действий
+
+### Проведение транзакций
+1. получить PIN код
+2. сгенерировать приватный ключ по идентификатору, который вернул MS Face API, и PIN-кода.
+3. получить баланс пользователя по адресу, полученному из приватного ключа
+4. найти по номеру телефона адрес получателя из смарт-контрата
+  * Контракт должен иметь следующие интерфейсы
+    * Сделать запрос на запись номера для аккаунта: ассоциировать передаваемый номер с отправителем транзакции. Любой пользователь.
+    * Подтвердить запрос на запись номера для аккаунта. Только владелец контракта.
+    * Сделать запрос на удаление номера для аккаунта: разорвать ассоциацию с номером телефона текущего отправителя транзакции. Любой пользователь.
+    * Подтвердитьб запрос на удаление номера для аккаунта. Только владелец контракта.
+    * Получить аккаунт для переданного номера телефона
+    * Генерировать event для операций добавления или удаления номера телефона
+    * Сменить владельца контракта.
+5. сделать перевод средств с адреса идентифицированного пользователя на адрес найденного пользователя
+6. сделать "сертификат на перевод" - последовательность байт используя, которые любой пользователь может претендовать на получение средств, указанных в сертификате. Данная последовательность байт не должна храниться в блокчейн, чтобы избежать возможность несанкционированного перевода. Средства блокируются со счета отправителя на некоторое время, указанное при создании сертификата. После истечения времени, если сертификат не был использован, то можно разблокировать средства.
+
 
 ## Набор заданий
 
@@ -121,8 +167,8 @@
 | US-003 Изменение владельца контракта регистра соответствий | 10 |
 | US-006 Получение всех пользователей из сервиса идентификации | 10 |
 | US-007 Удаление пользователя из сервиса идентификации | 10 |
-| US-008 Запуск обучения сервиса индентификации (кроме AC-008-04) | 15 |
-| US-010 Идентификация пользователя | 25 |
+| US-008 Запуск обучения сервиса индентификации (кроме AC-008-04) | 18 |
+| US-010 Идентификация пользователя (кроме AC-010-04) | 23 |
 | US-014 Отправка запроса на регистрацию соответствия | 10 |
 | US-015 Отправка запроса на удаление соответствия | 10 |
 | US-016 Отмена запроса на регистрацию или удаление соответствия | 15 |
@@ -133,15 +179,16 @@
 | US-025 Подтверждение запросов на регистрацию или удаление соответствий | 15 |
 | US-026 Получение аккаунта по номеру телефона | 10 |
 
-Максимальное количество баллов за итерацию - 190.
+Максимальное количество баллов за итерацию - 191.
 
 ### Третья итерация
 
 | Подзадача | Баллы |
 | :---- | :----: |
 | US-005 Улучшенное добавление пользователя в сервис индентификации | 50 |
-| US-008 Запуск обучения сервиса индентификации (полностью) | 5 |
+| US-008 Запуск обучения сервиса индентификации (полностью) | 2 |
 | US-009 Обнаружение уже добавленного пользователя | 20 |
+| US-010 Идентификация пользователя (полностью) | 2 |
 | US-011 Запрос действий на безопасную идентификацию пользователя | 5 |
 | US-012 Безопасная идентификация пользователя | 35 |
 | US-018 Генерация сертификата на получение средств | 10 |
@@ -253,7 +300,7 @@ $ setup.py --deploy
 KYC Registrar: 0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd
 Payment Handler: 0x95426f2bC716022fCF1dEf006dbC4bB81f5B5164
 $ cat registrar.json
-{"registrar": {"address": "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd", "startBlock": 123456}, "payment": {"address": "0x95426f2bC716022fCF1dEhttps://gasprice.poa.network/f006dbC4bB81f5B5164", "startBlock": 123457}}
+{"registrar": {"address": "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd", "startBlock": 123456}, "payments": {"address": "0x95426f2bC716022fCF1dEhttps://gasprice.poa.network/f006dbC4bB81f5B5164", "startBlock": 123457}}
 ```
 _Комментарий_:
 
@@ -263,12 +310,12 @@ _Комментарий_:
 ##### Критерий оценивания AC-001-02
 ```shell
 $ cat registrar.json
-{"registrar": {"address": "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd", "startBlock": 123456}, "payment": {"address": "0x95426f2bC716022fCF1dEf006dbC4bB81f5B5164", "startBlock": 123457}}
+{"registrar": {"address": "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd", "startBlock": 123456}, "payments": {"address": "0x95426f2bC716022fCF1dEf006dbC4bB81f5B5164", "startBlock": 123457}}
 $ setup.py --deploy
 KYC Registrar: 0x23B40E5bCd06D819ba81A09e0340Ec06460d2b7D
 Payment Handler: 0xE797A1da01eb0F951E0E400f9343De9d17A06bac
 $ cat registrar.json
-{"registrar": {"address": "0x23B40E5bCd06D819ba81A09e0340Ec06460d2b7D", "startBlock": 456123}, "payment": {"address": "0xE797A1da01eb0F951E0E400f9343De9d17A06bac", "startBlock": 456125}}
+{"registrar": {"address": "0x23B40E5bCd06D819ba81A09e0340Ec06460d2b7D", "startBlock": 456123}, "payments": {"address": "0xE797A1da01eb0F951E0E400f9343De9d17A06bac", "startBlock": 456125}}
 ```
 _Комментарий_: 
 
@@ -300,6 +347,33 @@ $ setup.py --owner registrar
 
 На терминал выводится адрес аккаунта.
 
+##### Критерий оценивания AC-002-01
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+$ setup.py --deploy
+KYC Registrar: 0x9FdddF5bf10c65221da0a78ADAFec1D8E9EF0A7D
+Payment Handler: 0xD79A8FDB771Ea12359270aD7020bcCB328C9f5f7
+$ setup.py --owner registrar
+Admin account: 0x9cce34F7aB185c7ABA1b7C8140d620B4BDA941d6
+```
+_Комментарий_:
+
+Транзакции в блокчейн сеть не отправляются. 
+
+##### Критерий оценивания AC-002-02
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107",
+$ cat registrar.json
+{"registrar": {"address": "0x9FdddF5bf10c65221da0a78ADAFec1D8E9EF0A7D", "startBlock": 234156}, "payments": {"address": "0xD79A8FDB771Ea12359270aD7020bcCB328C9f5f7", "startBlock": 451247}}
+$ setup.py --owner registrar
+Admin account: 0x9cce34F7aB185c7ABA1b7C8140d620B4BDA941d6
+```
+_Комментарий_:
+
+Транзакции в блокчейн сеть не отправляются.
+
 #### US-003 Изменение владельца контракта регистра соответствий
 
 ##### Использование скрипта
@@ -311,9 +385,67 @@ $ setup.py --chown registrar <address>
 
 На терминал выводится адрес нового аккаунта.
 
+##### Критерий оценивания AC-003-01
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+$ setup.py --owner registrar
+Admin account: 0x9cce34F7aB185c7ABA1b7C8140d620B4BDA941d6
+$ setup.py --chown registrar 0x6455f1445c72ba9460c6f6ab364d3935a0ad4559
+New admin account: 0x6455F1445c72BA9460C6f6AB364d3935a0AD4559
+$ setup.py --owner registrar
+Admin account: 0x6455F1445c72BA9460C6f6AB364d3935a0AD4559
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция для изменения аккаунта. Транзакция успешно верифицирована и включена в блок. Для проведения транзакции выбрана цена из значения `fast`, возвращенного сервисом `https://gasprice.poa.network`.
+
+##### Критерий оценивания AC-003-02
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+$ setup.py --owner registrar
+Admin account: 0x6455F1445c72BA9460C6f6AB364d3935a0AD4559
+$ setup.py --chown registrar 0x11460ff94ca4212d9d02b5bea1766dd099e0a9df
+Request cannot be executed
+$ setup.py --owner registrar
+Admin account: 0x6455F1445c72BA9460C6f6AB364d3935a0AD4559
+```
+_Комментарий_:
+
+Транзакции в блокчейн сеть не отправляются.
+
+##### Критерий оценивания AC-003-03
+```shell
+$ cat network.json | python -mjson.tool | grep gasPriceUrl 
+    "gasPriceUrl": "https://gasprice.poa.network/",
+$ curl https://gasprice.poa.network/
+curl: (6) Could not resolve host: gasprice.poa.network
+$ setup.py --chown registrar 0x11460ff94ca4212d9d02b5bea1766dd099e0a9df
+New admin account: 0x11460ff94cA4212d9D02b5bEA1766Dd099E0A9DF
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция для изменения аккаунта. Транзакция успешно верифицирована и включена в блок. Для проведения транзакции выбрана цена из значения `defaultGasPrice` из файла `network.json`.
+
+##### Критерий оценивания AC-003-04
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+$ setup.py --owner registrar
+Admin account: 0x9cce34F7aB185c7ABA1b7C8140d620B4BDA941d6
+$ setup.py --chown registrar 0x6455f1445c72ba9460c6f6ab364d3935a0ad4559
+New admin account: 0x6455F1445c72BA9460C6f6AB364d3935a0AD4559
+$ setup.py --owner registrar
+Admin account: 0x6455F1445c72BA9460C6f6AB364d3935a0AD4559
+```
+_Комментарий_:
+
+Если из транзакции, которая была отправлена в результате команды `setup.py --chown`, извлечь поле `input` и отправить его в новой транзакции снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка, поскольку новый аккаунт, обладающий полномочиями, был изменен транзакцией, посланной командо `setup.py --chown`. Следовательно, изменение аккаунта с полномочиями выполнять действия по подверждению запросов на регистрацию и удалению соответствий аккаунтов и телефонных номеров не происходит. Статус можно подтвердить для данной транзакции в браузере блоков.
+
 ### Подотовка сервиса идентификации
 
-Сервис идентификации человека по лицу перед полноценной работой требует предварительной настройки. Первое, что должно быть сделано - в сервис необходимо добавить лица людей, которых в дальнейшем необходимо идентифицировать. Поскольку система автоматического тестирования не может работать с камерой, то изображения человека будут передаваться через видео-файл, передаваемый в сервис через параметры командной строки.  
+Сервис идентификации человека по лицу перед полноценной работой требует предварительной настройки. Первое, что должно быть сделано - в сервис необходимо добавить лица людей, которых в дальнейшем необходимо идентифицировать. Поскольку система автоматического тестирования не может работать с камерой, то изображения человека будут передаваться через видео-файл, передаваемый в сервис через параметры командной строки.
 
 Администратор свервиса должен иметь возможность просматривать список добавленных пользователей, удалять пользователя (и его изображения) из системы. 
 
@@ -451,6 +583,49 @@ $ face-management.py --add <path to video file 1> [ <path to video file 2> [ <pa
 $ face-management.py --list
 ```
 
+##### Критерий оценивания AC-006-01
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups/fintech-01" -H "Content-Type: application/json" -H "Ocp-Apim-Subscription-Key: 000000000000000000000000000000000" 
+{"error":{"code":"PersonGroupNotFound","message":"Person group is not found.\r\nParameter name: personGroupId"}}
+$ face-management.py --list
+The group does not exist
+```
+_Комментарий_:
+
+Требуемый `personGroupId` не существовует в сервисе _Microsoft Face API_ ни до, ни после выполнения команды. 
+
+##### Критерий оценивания AC-006-02
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups" -H "Content-Type: application/json" -H "OcApim-Subscription-Key: 000000000000000000000000000000000" 
+[{"personGroupId":"fintech-01","name":"fintech-01","userData":null}]
+$ face-management.py --list
+Persons IDs:
+27dadf08-bc60-4a29-82a7-7d21ea7f40af
+b8cf9c2f-a606-4f21-851d-26e0a0dc8a74
+bf4806de-8c4b-4a12-8495-002f43dba797
+ff79486f-15ac-43be-9c6c-b2840f8c8d22
+```
+_Комментарий_:
+
+Требуемый `personGroupId` существует в _Microsoft Face API_. 
+
+##### Критерий оценивания AC-006-03
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups" -H "Content-Type: application/json" -H "OcApim-Subscription-Key: 000000000000000000000000000000000" 
+[{"personGroupId":"fintech-01","name":"fintech-01","userData":null}]
+$ face-management.py --list
+No persons found
+```
+_Комментарий_:
+
+Требуемый `personGroupId` существует в _Microsoft Face API_, но в ней нет пользователей.
+
 #### US-007 Удаление пользователя из сервиса идентификации
 
 Администратор сервиса может удалить пользователя сервиса по его идентификатору. 
@@ -459,6 +634,41 @@ $ face-management.py --list
 ```shell
 $ face-management.py --del <person id>
 ```
+
+##### Критерий оценивания AC-007-01
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups/fintech-01" -H "Content-Type: application/json" -H "Ocp-Apim-Subscription-Key: 000000000000000000000000000000000" 
+{"error":{"code":"PersonGroupNotFound","message":"Person group is not found.\r\nParameter name: personGroupId"}}
+$ face-management.py --del 27dadf08-bc60-4a29-82a7-7d21ea7f40af
+The group does not exist
+```
+_Комментарий_:
+
+Требуемый `personGroupId` не существовует в сервисе _Microsoft Face API_ ни до, ни после выполнения команды. 
+
+##### Критерий оценивания AC-007-02
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups" -H "Content-Type: application/json" -H "OcApim-Subscription-Key: 000000000000000000000000000000000" 
+[{"personGroupId":"fintech-01","name":"fintech-01","userData":null}]
+$ face-management.py --del 27dadf08-bc60-4a29-82a7-7d21ea7f40af
+Person deleted
+```
+_Комментарий_:
+
+Требуемый `personGroupId` существует в _Microsoft Face API_. Пользователь с заданным ID удаляется из сервиса. 
+
+##### Критерий оценивания AC-007-03
+```shell
+$ face-management.py --del bdaf190a-4805-4e2c-95af-1afa8b2623df
+The person does not exist
+```
+_Комментарий_:
+
+Пользователь с данным ID не существет в требуемой `personGroupId`.
 
 #### US-008 Запуск обучения сервиса индентификации 
 
@@ -470,6 +680,111 @@ $ face-management.py --del <person id>
 ```shell
 $ face-management.py --train
 ```
+
+##### Критерий оценивания AC-008-01
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups/fintech-01" -H "Content-Type: application/json" -H "Ocp-Apim-Subscription-Key: 000000000000000000000000000000000" 
+{"error":{"code":"PersonGroupNotFound","message":"Person group is not found.\r\nParameter name: personGroupId"}}
+$ face-management.py --train
+There is nothing to train
+```
+_Комментарий_:
+
+Требуемый `personGroupId` не существовует в сервисе _Microsoft Face API_ ни до, ни после выполнения команды. Тренировка сервиса не запускается.
+
+##### Критерий оценивания AC-008-02
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups" -H "Content-Type: application/json" -H "OcApim-Subscription-Key: 000000000000000000000000000000000" 
+[{"personGroupId":"fintech-01","name":"fintech-01","userData":null}]
+$ face-management.py --train
+There is nothing to train
+```
+_Комментарий_:
+
+Требуемый `personGroupId` существует в _Microsoft Face API_, но в группе нет ни одного добавленного пользователя. Тренировка сервиса не запускается. 
+
+##### Критерий оценивания AC-008-03
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups" -H "Content-Type: application/json" -H "OcApim-Subscription-Key: 000000000000000000000000000000000" 
+[{"personGroupId":"fintech-01","name":"fintech-01","userData":null}]
+$ face-management.py --simple-add /path/to/video1.avi
+5 frames extracted
+PersonId: 37da04e7-f471-49c7-a54c-a08f05950fc5
+FaceIds
+=======
+1d499868-3d01-487c-8bab-626dc562e4e8
+27dadf08-bc60-4a29-82a7-7d21ea7f40af
+b8cf9c2f-a606-4f21-851d-26e0a0dc8a74
+bf4806de-8c4b-4a12-8495-002f43dba797
+ff79486f-15ac-43be-9c6c-b2840f8c8d22
+$ face-management.py --train
+Training successfully started
+```
+_Комментарий_:
+
+Требуемый `personGroupId` существует в _Microsoft Face API_. Поскольку запуску команды тренировки сервиса предшествует команда добавления пользователя, то обучение запускается. 
+
+##### Критерий оценивания AC-008-04
+```shell
+$ face-management.py --add /path/to/video1.avi /path/to/video2.avi /path/to/video3.avi /path/to/video4.avi /path/to/video6.avi
+18 frames extracted
+PersonId: 5d5d6e92-f8f0-47cf-8e9b-b4455092603e
+FaceIds
+=======
+0e5edd8e-7756-470e-a26c-f54ab70a5524
+73b4caea-c85c-4594-9153-198351937d94
+2ae3c850-190a-4cd0-afd2-8efa341767ba
+adb7744e-b2fb-4a58-b3a8-f22c3143a8cd
+7e0f87d6-14ad-4ec6-971f-e4c2771cc267
+47c8c307-1f90-473c-b48c-792d5b5a1241
+33e35a22-358a-4847-bcdd-4a5bdfd5eb69
+2c7b951b-126a-4eec-9e22-1d9d65ece9e3
+bcaf7f6a-1c44-476e-a51f-9dde2744ade0
+1c9c0134-ada0-47c2-848c-d4424b232f04
+b79945e1-de47-4011-98f2-e7e8f0d9f3ef
+f972b6ac-078b-4e3d-a779-4cde8ea28f36
+fbeb7aa1-f66e-4412-ad07-b61103e8af0b
+9c762e64-075b-4fa4-8e39-0d83df86428b
+9794e349-e4e4-44ad-951c-610b4890b16e
+2e93da04-8f31-4a27-bd9e-5768335447a5
+b9227512-dfa8-4a17-94e2-be520b8975a9
+b67c1f86-2e3d-45a2-a7fb-57bbbff9cd8c
+$ face-management.py --train
+Training successfully started
+```
+_Комментарий_:
+
+Поскольку запуску команды тренировки сервиса предшествует команда добавления пользователя, то обучение запускается. 
+
+##### Критерий оценивания AC-008-05
+```shell
+$ face-management.py --del 27dadf08-bc60-4a29-82a7-7d21ea7f40af
+Person deleted
+$ face-management.py --train
+Training successfully started
+```
+_Комментарий_:
+
+Поскольку запуску команды тренировки сервиса предшествует команда удаления пользователя, то обучение запускается. 
+
+##### Критерий оценивания AC-008-06
+```shell
+$ face-management.py --train
+Training successfully started
+$ face-management.py --del bdaf190a-4805-4e2c-95af-1afa8b2623df
+The person does not exist
+$ face-management.py --train
+Already trained
+```
+_Комментарий_:
+
+Поскольку после предыдущего запуска команды тренировки сервиса изменений в списке пользователей не происходило, то обучение не запускается. 
 
 #### US-009 Обнаружение уже добавленного пользователя 
 
@@ -495,6 +810,139 @@ $ faceid.py --find <path to video file>
 {"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
 ```
 
+##### Критерий оценивания AC-010-01
+```shell
+$ face-management.py --simple-add /path/to/video1.avi
+5 frames extracted
+PersonId: 37da04e7-f471-49c7-a54c-a08f05950fc5
+FaceIds
+=======
+1d499868-3d01-487c-8bab-626dc562e4e8
+27dadf08-bc60-4a29-82a7-7d21ea7f40af
+b8cf9c2f-a606-4f21-851d-26e0a0dc8a74
+bf4806de-8c4b-4a12-8495-002f43dba797
+ff79486f-15ac-43be-9c6c-b2840f8c8d22
+$ face-management.py --train
+Training successfully started
+$ cat person.json
+cat: person.json: No such file or directory
+$ faceid.py --find /path/to/video21.avi
+37da04e7-f471-49c7-a54c-a08f05950fc5 identified
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+```
+_Комментарий_:
+
+Первое и второе видео содержат кадры лица одного и того же человека. Идентификация человека на втором видео происходит успешно, поскольку пять разных кадров из видео указывают на одного и того же человека с высокой степенью (не менее 50%) уверенности определения. В текущей директории создан файл `person.json`
+
+##### Критерий оценивания AC-010-02
+```shell
+$ face-management.py --simple-add /path/to/video1.avi
+5 frames extracted
+PersonId: 37da04e7-f471-49c7-a54c-a08f05950fc5
+FaceIds
+=======
+1d499868-3d01-487c-8bab-626dc562e4e8
+27dadf08-bc60-4a29-82a7-7d21ea7f40af
+b8cf9c2f-a606-4f21-851d-26e0a0dc8a74
+bf4806de-8c4b-4a12-8495-002f43dba797
+ff79486f-15ac-43be-9c6c-b2840f8c8d22
+$ face-management.py --train
+Training successfully started
+$ face-management.py --simple-add /path/to/video2.avi
+5 frames extracted
+PersonId: d9e01953-7bc1-4079-96af-3f3a26cf4b1d
+FaceIds
+=======
+3c8195bb-49e7-4b45-b7ae-d44e60310599
+d01523ce-cd83-4605-8298-afd4bb8d9e81
+c0facdb1-704f-44f2-b76f-4e7298c476be
+dcfa8e7b-f8d4-4567-80c5-55f3c5e13d85
+a6872fc7-e45b-467f-b9a7-e18935d057da
+$ cat person.json
+{"id": "33fc4c4a-911a-4ab0-9535-f588d47c3a60"}
+$ faceid.py --find /path/to/video21.avi
+The service is not ready
+$ cat person.json
+cat: person.json: No such file or directory
+```
+_Комментарий_:
+
+Первое и третье видео содержат кадры лица одного и того же человека. Но поскольку после добавления нового пользователя не происходило повторное обучение сервиса, идентификация человека невозможна. Существовавший в текущей директории файл `person.json` удаляется.
+
+##### Критерий оценивания AC-010-03
+```shell
+$ cat faceapi.json | python -mjson.tool | grep groupId
+    "groupId": "fintech-01",
+$ curl -X GET "https://westeurope.api.cognitive.microsoft.com/face/v1.0/persongroups/fintech-01" -H "Content-Type: application/json" -H "Ocp-Apim-Subscription-Key: 000000000000000000000000000000000" 
+{"error":{"code":"PersonGroupNotFound","message":"Person group is not found.\r\nParameter name: personGroupId"}}
+$ faceid.py --find /path/to/video21.avi
+The service is not ready
+$ cat person.json
+cat: person.json: No such file or directory
+```
+_Комментарий_:
+
+Поскольку не существует группы на момент запуска команды идентификации пользователя, то идентификация человека невозможна. Файл `person.json` не создается.
+
+##### Критерий оценивания AC-010-04
+```shell
+$ face-management.py --add /path/to/video1.avi /path/to/video2.avi /path/to/video3.avi /path/to/video4.avi /path/to/video5.avi
+18 frames extracted
+PersonId: 5d5d6e92-f8f0-47cf-8e9b-b4455092603e
+FaceIds
+=======
+0e5edd8e-7756-470e-a26c-f54ab70a5524
+73b4caea-c85c-4594-9153-198351937d94
+2ae3c850-190a-4cd0-afd2-8efa341767ba
+adb7744e-b2fb-4a58-b3a8-f22c3143a8cd
+7e0f87d6-14ad-4ec6-971f-e4c2771cc267
+47c8c307-1f90-473c-b48c-792d5b5a1241
+33e35a22-358a-4847-bcdd-4a5bdfd5eb69
+2c7b951b-126a-4eec-9e22-1d9d65ece9e3
+bcaf7f6a-1c44-476e-a51f-9dde2744ade0
+1c9c0134-ada0-47c2-848c-d4424b232f04
+b79945e1-de47-4011-98f2-e7e8f0d9f3ef
+f972b6ac-078b-4e3d-a779-4cde8ea28f36
+fbeb7aa1-f66e-4412-ad07-b61103e8af0b
+9c762e64-075b-4fa4-8e39-0d83df86428b
+9794e349-e4e4-44ad-951c-610b4890b16e
+2e93da04-8f31-4a27-bd9e-5768335447a5
+b9227512-dfa8-4a17-94e2-be520b8975a9
+b67c1f86-2e3d-45a2-a7fb-57bbbff9cd8c
+$ face-management.py --train
+Training successfully started
+$ faceid.py --find /path/to/video22.avi
+The person was not found
+$ cat person.json
+cat: person.json: No such file or directory
+```
+_Комментарий_:
+
+Видео, использовавшееся при добавлении человека, и видео, использующееся при распознавании, содержат кадры лица разных людей. Человек, чье лицо изображено на видео, использующееся при распозновании, не был добавлен до этого в сервис _Microsoft Face API_. Кадры лица человека из второго видео не добавляются в сервис _Microsoft Face API_. Файл `person.json` не создается.
+
+##### Критерий оценивания AC-010-05
+```shell
+$ faceid.py --find /path/to/video100.avi
+The video does not follow requirements
+$ cat person.json
+cat: person.json: No such file or directory
+```
+_Комментарий_:
+
+Видео, использующееся при распознавании, либо содержит меньше 5 кадров, либо не содержит кадров с лицом пользователя. Файл `person.json` не создается.
+
+##### Критерий оценивания AC-010-06
+```shell
+$ faceid.py --find /path/to/video101.avi
+The person was not found
+$ cat person.json
+cat: person.json: No such file or directory
+```
+_Комментарий_:
+
+На видео, использующееся при распознавании, как минимум один из пяти разных кадров указывает на человека, отличающегося от человека в других кадрах. Степень уверенности определения не менее 50%. Файл `person.json` не создается.
+
 #### US-011 Запроса действий на безопасную идентификацию пользователя
 
 в JSON помещается набор действий, которые должен выполнить пользователь
@@ -510,7 +958,7 @@ $ faceid.py --actions
 
 ##### Использование скрипта
 ```shell
-$ faceid.py --find /path/to/video.avi
+$ faceid.py --find <path to video file>
 ```
 
 #### US-013 Получение баланса идентифицированного пользователя
@@ -553,7 +1001,7 @@ _Комментарий_:
 $ cat person.json
 {"id": "a9d0f1d5-1359-43ca-bcc3-cc7c1e314b86"}
 $ faceid.py --balance 1864
-Your balance is 84.000138 szabo poa
+Your balance is 84.000138 szabo
 ```
 _Комментарий_:
 
@@ -592,6 +1040,160 @@ $ faceid.py --add <pin code> <phone number>
 
 Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя. В блокчейн сеть отправляется транзакция к контракту регистра соответствий с запросом регистрации. В терминал выводится хэш транзакции, в рамках которой в контракт добавлен запрос регистрации.  
 
+##### Критерий оценивания AC-014-01
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция с запросом регистрации соответствия аккаунта, ассоциированного с аккаунтом, указанным в файле `person.json` и номером телефона, указанным в параметре командной строки. При обработке запроса, контракт производить событие (`event`) `RegistrationRequest`, в с указанием аккаунта, отправившего запрос:
+
+```solidity
+event RegistrationRequest(address indexed sender);
+```
+
+Для проведения транзакции выбрана цена из значения `fast`, возвращенного сервисом `https://gasprice.poa.network`.
+
+##### Критерий оценивания AC-014-02
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ faceid.py --add 4590 +79991234567
+Registration request already sent
+$ faceid.py --add 4590 +79991239812
+Registration request already sent
+```
+_Комментарий_:
+
+Повторный запрос на регистрацию соответствия аккаунта не отправляется в блокчейн сеть, поскольку данный аккаунт уже посылал запрос на регистрацию соответствий. Первичный запрос еще не был обработан. В терминал выводится сообщение об ошибке. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-014-03
+```shell
+$ cat person.json
+cat: person.json: No such file or directory
+$ faceid.py --add 4590 +79991234567
+ID is not found
+```
+_Комментарий_:
+
+Выдается ошибка, если в текущей директории не существует файл `person.json`. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-014-04
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 1234 +79991234567
+No funds to send the request
+```
+_Комментарий_:
+
+Поскольку ситуация, когда неправильный приватный ключ сформирован из-за некорретного PIN-кода, неотличима от ситуации, когда на аккаунте нет средств для оплаты комиссии на обработку транзакции, в терминал выводится сообщение об ошибке. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-014-05
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ faceid.py --add 4590 +79122229016
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла `registrar.json`, содержащего адрес контракта регистра соответствий. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-014-06
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ faceid.py --add 4590 +79122229016
+Seems that the contract address is not the registrar contract
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле `registrar.json`, не принадлежит контракту регистра соответствий.
+
+##### Критерий оценивания AC-014-07
+```shell
+$ faceid.py --add 4590 +79122
+Incorrect phone number
+$ faceid.py --add 4590 adad
+Incorrect phone number
+$ faceid.py --add 4590 +73431231543543534653
+Incorrect phone number
+$ faceid.py --add 4590
+Incorrect phone number
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если номер телефона указан некорректно. Корректный номер содержит 11 цифр и начинается со знака +.
+
+##### Критерий оценивания AC-014-08
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ faceid.py --find /path/to/video23.avi
+168f2e61-089f-88a9-53b2-3b3d0c497704 identified
+$ faceid.py --add 5981 +79037518950
+Registration request sent by 0x6a8a46c4e005b9e8bea97aa58c5839787b5689e9e8785ea9e38330395582f78f
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция с запросом регистрации соответствия аккаунта даже если в контракте регистра уже учтены запросы на регистрацию соответствий других аккаунтов. При обработке запроса, контракт производит событие (`event`) `RegistrationRequest`.
+
+##### Критерий оценивания AC-014-09
+```shell
+$ cat network.json | python -mjson.tool | grep gasPriceUrl 
+    "gasPriceUrl": "https://gasprice.poa.network/",
+$ curl https://gasprice.poa.network/
+curl: (6) Could not resolve host: gasprice.poa.network
+$ faceid.py --add 5981 +79037518950
+Registration request sent by 0x6a8a46c4e005b9e8bea97aa58c5839787b5689e9e8785ea9e38330395582f78f
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция c запросом регистрации соответствия аккаунта. Транзакция успешно верифицирована и включена в блок. Для проведения транзакции выбрана цена из значения `defaultGasPrice` из файла `network.json`.
+
+##### Критерий оценивания AC-014-10
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0x73aad4ff595a8813cc7d440d244545017c77098528f010a7caaa7d74c382f6c5
+```
+_Комментарий_:
+
+Если из транзакции c идентификатором `0x73aad4ff595a8813cc7d440d244545017c77098528f010a7caaa7d74c382f6c5` извлечь поле `input` и отправить его в новой транзакции с того же аккаунта снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка, поскольку такой запрос регистрации соответствия уже был послан в контракт. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-014-11
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+```
+_Комментарий_:
+
+Если из транзакции с идентификатором `0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69` извлечь поле `input`, изменить в нем те байты, которые кодируют номер телефона так, чтобы передаваемый номер телефона содержал количество цифр отличное от 11, либо содержал буквы, и отправить получившийся набор байт в новой транзакции с того же аккаунта снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка, поскольку такой номер телефона некорректный. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-014-12
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0x73aad4ff595a8813cc7d440d244545017c77098528f010a7caaa7d74c382f6c5
+```
+_Комментарий_:
+
+Если из транзакции c идентификатором `0x73aad4ff595a8813cc7d440d244545017c77098528f010a7caaa7d74c382f6c5` извлечь поле `input` и отправить его в новой транзакции с аккаунта, отличающегося от `from` в упомянутой выше транзакции, на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - успешно, поскольку такой изначальный запрос регистрации соответствия еще не был подтвержден. Статус транзакции можно подтвердить для данной транзакции в браузере блоков.
+
 #### US-015 Отправка запроса на удаление соответствия
 
 После идентификации пользователь может отправить запрос на удаление соответствия между телефоном и своим аккаунтом.
@@ -602,6 +1204,134 @@ $ faceid.py --del <pin code>
 ```
 
 Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя. В блокчейн сеть отправляется транзакция к контракту регистра соответствий с запросом удаления. В терминал выводится хэш транзакции, в рамках которой в контракт добавлен запрос удаления.  
+
+##### Критерий оценивания AC-015-01
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x58aff6987a78c9109ff3b99b0e1cf333faba313bc8002d4b333653be45d7e1d8
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция с запросом удаления ранее зарегистрированного соответствия аккаунта, ассоциированного с аккаунтом, указанным в файле `person.json` и номера телефона. При обработке запроса, контракт производить событие (`event`) `UnregistrationRequest`, в с указанием аккаунта, отправившего запрос:
+
+```solidity
+event UnregistrationRequest(address indexed sender);
+```
+
+Для проведения транзакции выбрана цена из значения `fast`, возвращенного сервисом `https://gasprice.poa.network`.
+
+##### Критерий оценивания AC-015-02
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x58aff6987a78c9109ff3b99b0e1cf333faba313bc8002d4b333653be45d7e1d8
+$ faceid.py --del 4590
+Unregistration request already sent
+```
+_Комментарий_:
+
+Повторный запрос на удаление соответствия аккаунта не отправляется в блокчейн сеть, поскольку данный аккаунт уже посылал запрос на удаление соответствий. Первичный запрос еще не был обработан. В терминал выводится сообщение об ошибке. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-015-03
+```shell
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --add 6104 +79220012534
+Registration request sent by 0xc95d677eb6f3fcb55e08274ae0eed1970391e637f1062426a3406fd7d4cfcfcb
+$ faceid.py --del 6104
+Account is not registered yet
+```
+_Комментарий_:
+
+Запрос на удаление соответствия аккаунта не отправляется в блокчейн сеть, поскольку данный аккаунт не зарегистрирован в регистре соответствий. В терминал выводится сообщение об ошибке. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-015-04
+```shell
+$ cat person.json
+cat: person.json: No such file or directory
+$ faceid.py --del 4590
+ID is not found
+```
+_Комментарий_:
+
+Выдается ошибка, если в текущей директории не существует файл `person.json`. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-015-05
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 1234
+No funds to send the request
+```
+_Комментарий_:
+
+Поскольку ситуация, когда неправильный приватный ключ сформирован из-за некорретного PIN-кода, неотличима от ситуации, когда на аккаунте нет средств для оплаты комиссии на обработку транзакции, в терминал выводится сообщение об ошибке. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-015-06
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ faceid.py --del 4590
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла `registrar.json`, содержащего адрес контракта регистра соответствий. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-015-07
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ faceid.py --del 4590
+Seems that the contract address is not the registrar contract. 
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле `registrar.json`, не принадлежит контракту регистра соответствий.
+
+##### Критерий оценивания AC-015-08
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x58aff6987a78c9109ff3b99b0e1cf333faba313bc8002d4b333653be45d7e1d8
+$ faceid.py --find /path/to/video23.avi
+168f2e61-089f-88a9-53b2-3b3d0c497704 identified
+$ faceid.py --del 5981
+Unregistration request sent by 0xda0e2a124e6d37080b539f1bb0dc4c698b8025b62dcc56d75efc1115d87381aa
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция с запросом удаления ранее зарегистрированного соответствия аккаунта даже если в контракте регистра уже учтены запросы на удаление соответствий других аккаунтов. При обработке запроса, контракт производить событие (`event`) `UnregistrationRequest`.
+
+##### Критерий оценивания AC-015-09
+```shell
+$ cat network.json | python -mjson.tool | grep gasPriceUrl 
+    "gasPriceUrl": "https://gasprice.poa.network/",
+$ curl https://gasprice.poa.network/
+curl: (6) Could not resolve host: gasprice.poa.network
+$ faceid.py --del 5981
+Unregistration request sent by 0xda0e2a124e6d37080b539f1bb0dc4c698b8025b62dcc56d75efc1115d87381aa
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция c запросом удаления соответствия аккаунта. Транзакция успешно верифицирована и включена в блок. Для проведения транзакции выбрана цена из значения `defaultGasPrice` из файла `network.json`.
+
+##### Критерий оценивания AC-015-10
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x58aff6987a78c9109ff3b99b0e1cf333faba313bc8002d4b333653be45d7e1d8
+```
+_Комментарий_:
+
+Если из транзакции с идентификатором `0x58aff6987a78c9109ff3b99b0e1cf333faba313bc8002d4b333653be45d7e1d8` извлечь поле `input` и отправить его в новой транзакции с того же аккаунта снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка, поскольку такой запрос удаления соответствия уже был послан в контракт. Статус можно подтвердить для данной транзакции в браузере блоков.
 
 #### US-016 Отмена запроса на регистрацию или удаление соответствия
 
@@ -614,43 +1344,444 @@ $ faceid.py --cancel <pin code>
 
 Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя. В блокчейн сеть отправляется транзакция к контракту регистра соответствий на отмену запроса добавления или удаления соответствия. В терминал выводится хэш транзакции, в рамках которой просиходит отмена.  
 
+##### Критерий оценивания AC-016-01
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ faceid.py --cancel 4590
+Registration canceled by 0x99a7e5f28b653d63b5c0bbddebc91678530ee461e4fa21c9ab2f281d28b8da5e
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция с отменой запроса регистрации соответствия аккаунта, ассоциированного с аккаунтом, указанным в файле `person.json`. При обработке запроса, контракт производить событие (`event`) `RegistrationСanceled`, в с указанием аккаунта, отправившего запрос:
+
+```solidity
+event RegistrationСanceled(address indexed sender);
+```
+
+Для проведения транзакции выбрана цена из значения `fast`, возвращенного сервисом `https://gasprice.poa.network`.
+
+##### Критерий оценивания AC-016-02
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0x20d2ac2a28641786ba03eff53facea687b35e08e680a1b71922c6fc1ed1f2735
+$ faceid.py --cancel 4590
+Registration canceled by 0x566674f71911cd3b7cbc2fd66353711d31aaa96f269440d186374a017f53f324
+```
+_Комментарий_:
+Если из транзакции с идентификатором `0x566674f71911cd3b7cbc2fd66353711d31aaa96f269440d186374a017f53f324` извлечь поле `input` и отправить его в новой транзакции с того же аккаунта снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка, поскольку запрос регистрации соответствия с этого аккаунта уже был отменен. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-016-03
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x58aff6987a78c9109ff3b99b0e1cf333faba313bc8002d4b333653be45d7e1d8
+$ faceid.py --cancel 4590
+Unregistration canceled by 0x84a9548edfa9ce5d05bb7c88702873196f7537e060619d4238e7f23ba8dfe3bd
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция с отменой запроса удаления ранее зарегистрированного соответствия аккаунта, ассоциированного с аккаунтом, указанным в файле `person.json`. При обработке запроса, контракт производить событие (`event`) `UnregistrationCanceled`, в с указанием аккаунта, отправившего запрос:
+
+```solidity
+event UnregistrationCanceled(address indexed sender);
+```
+
+##### Критерий оценивания AC-016-04
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0xbf08d8a2d7c7780024ba6e6dbe12d3d5a5a747ea3071fca63d8a2ede50d3472a
+$ faceid.py --cancel 4590
+Registration canceled by 0x2946d6e84f7bc52619746d71da01ef04a31855a8deb6dbea29310ab3b0f6201e
+```
+_Комментарий_:
+Если из транзакции с идентификатором `0x2946d6e84f7bc52619746d71da01ef04a31855a8deb6dbea29310ab3b0f6201e` извлечь поле `input` и отправить его в новой транзакции с того же аккаунта снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка, поскольку запрос удаления соответствия с этого аккаунта уже был отменен. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-016-05
+```shell
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ faceid.py --cancel 4590
+Registration canceled by 0x99a7e5f28b653d63b5c0bbddebc91678530ee461e4fa21c9ab2f281d28b8da5e
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0x4ae610dabaaddd16fe0097641e0e78b5423f891083bb81266b228a49db54e2ff
+```
+_Комментарий_:
+
+После отмены запроса регистрации соответствия, в блокчейн сеть снова можно отправить запрос на регистрацию соответствия для того же аккаунта.
+
+##### Критерий оценивания AC-016-06
+```shell
+$ faceid.py --del 4590
+Unregistration request sent by 0x58aff6987a78c9109ff3b99b0e1cf333faba313bc8002d4b333653be45d7e1d8
+$ faceid.py --cancel 4590
+Unregistration canceled by 0x84a9548edfa9ce5d05bb7c88702873196f7537e060619d4238e7f23ba8dfe3bd
+$ faceid.py --del 4590
+Unregistration request sent by 0x03a8233da62730a9e5ac69d78c3fc3cf02b04ecb995f5a9f9eb3b17c01692824
+```
+_Комментарий_:
+
+После отмены запроса на удаление соответствия, в блокчейн сеть снова можно отправить отмену запроса удаления ранее зарегистрированного соответствия аккаунта.
+
+##### Критерий оценивания AC-016-07
+```shell
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0x4ae610dabaaddd16fe0097641e0e78b5423f891083bb81266b228a49db54e2ff
+$ faceid.py --cancel 4590
+Registration canceled by 0x3d61f45ffa5ac772fc53d36fcc89bacaee425152d65c7fd9a506ba40aa0ed6e1
+$ faceid.py --cancel 4590
+No requests found
+```
+_Комментарий_:
+
+Выдается ошибка, если нет активных запросов на регистрацию или удаления соответствия.
+
+##### Критерий оценивания AC-016-08
+```shell
+$ faceid.py --del 4590
+Unregistration request sent by 0x03a8233da62730a9e5ac69d78c3fc3cf02b04ecb995f5a9f9eb3b17c01692824
+$ faceid.py --cancel 4590
+Unregistration canceled by 0x41c2cd6cce43fddcd3c1489e1b2f40ad13b635bb0fce22f2ea66a97f15b6c84b
+$ faceid.py --cancel 4590
+No requests found
+```
+_Комментарий_:
+
+Выдается ошибка, если нет активных запросов на регистрацию или удаления соответствия.
+
+##### Критерий оценивания AC-016-09
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --cancel 4590
+Registration canceled by 0x41c2cd6cce43fddcd3c1489e1b2f40ad13b635bb0fce22f2ea66a97f15b6c84b
+$ faceid.py --find /path/to/video23.avi
+168f2e61-089f-88a9-53b2-3b3d0c497704 identified
+$ faceid.py --cancel 5981
+No requests found
+```
+_Комментарий_:
+
+Выдается ошибка, если нет активных запросов на регистрацию или удаления соответствия.
+
+##### Критерий оценивания AC-016-10
+```shell
+$ cat person.json
+cat: person.json: No such file or directory
+$ faceid.py --cancel 4590
+ID is not found
+```
+_Комментарий_:
+
+Выдается ошибка, если в текущей директории не существует файл `person.json`. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-016-11
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --cancel 1234
+No funds to send the request
+```
+_Комментарий_:
+
+Поскольку ситуация, когда неправильный приватный ключ сформирован из-за некорретного PIN-кода, неотличима от ситуации, когда на аккаунте нет средств для оплаты комиссии на обработку транзакции, в терминал выводится сообщение об ошибке. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-016-12
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ faceid.py --cancel 4590
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла `registrar.json`, содержащего адрес контракта регистра соответствий. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-016-13
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ faceid.py --cancel 4590
+Seems that the contract address is not the registrar contract. 
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле `registrar.json`, не принадлежит контракту регистра соответствий.
+
+##### Критерий оценивания AC-016-14
+```shell
+$ cat network.json | python -mjson.tool | grep gasPriceUrl 
+    "gasPriceUrl": "https://gasprice.poa.network/",
+$ curl https://gasprice.poa.network/
+curl: (6) Could not resolve host: gasprice.poa.network
+$ faceid.py --cancel 4590
+Registration canceled by 0x41c2cd6cce43fddcd3c1489e1b2f40ad13b635bb0fce22f2ea66a97f15b6c84b
+```
+_Комментарий_:
+
+В блокчейн сеть отправляется транзакция c отменой запросом регистрации или удаления соответствия аккаунта. Транзакция успешно верифицирована и включена в блок. Для проведения транзакции выбрана цена из значения `defaultGasPrice` из файла `network.json`.
+
 #### US-017 Отправка средств 
+
+После идентификации пользователь может отправить часть средств, которые числятся на его балансе другому пользователю системы, указав его номер телефона.
 
 ##### Использование скрипта
 ```shell
-$ faceid.py --send <pin code> <phone number> <value> 
+$ faceid.py --send <pin code> <phone number> <value>
 ```
+
+Через RPC узел блокчейн сети происходит обращение к контракту регистрации соответствий на получение аккаунта соответствующего данному номеру телефона. После этого используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя, в блокчейн сеть отправляется транзакция на перевод средств с баланса пользователя на аккаунт пользователя, ассоциированного с номером телефона.
+
+##### Критерий оценивания AC-017-01
+```shell
+$ cat network.json | python -mjson.tool | grep gasPriceUrl 
+    "gasPriceUrl": "https://gasprice.poa.network/",
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --balance 1234
+Your balance is 500 finney
+$ faceid.py --send 1234 +79873344556 10000000000000000
+Payment of 10 finney to +79873344556 scheduled
+Transaction Hash: 0x27c9181caeb55d37e1105fa1a8648db7fe50f79064b98e56b8e854e3abb43728
+$ faceid.py --balance 1234
+Your balance is 489.860605 finney
+```
+
+##### Критерий оценивания AC-017-02
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --balance 1234
+Your balance is 90 finney
+$ faceid.py --send 1234 +79873344556 10000000000000000
+No funds to send the payment
+$ faceid.py --balance 1234
+Your balance is 90 finney
+```
+
+Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-017-03
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --send 1234 +79873312356 10000000000000000
+No account with the phone number +79873312356
+```
+
+Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-017-04
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --send 1114 +79873312356 10000000000000000
+No funds to send the payment
+```
+_Комментарий_:
+
+Поскольку ситуация, когда неправильный приватный ключ сформирован из-за некорретного PIN-кода, неотличима от ситуации, когда на аккаунте нет средств для перевода, в терминал выводится сообщение об ошибке. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-017-05
+```shell
+$ faceid.py --send 1234 +79122 10000000000000000
+Incorrect phone number
+$ faceid.py --send 1234 adad 10000000000000000
+Incorrect phone number
+$ faceid.py --send 1234 +73431231543543534653 10000000000000000
+Incorrect phone number
+```
+
+Выдается сообщение об ошибке, если номер телефона указан некорректно. Корректный номер содержит 11 цифр и начинается со знака +.
 
 #### US-018 Генерация сертификата на получение средств
 
-После идентификации пользователь может отправить запрос на создание сертификата на получение определенного количества средств. Созданный сертификат впоследствии может быть использован любым пользователем до истечения срока действия. 
+После идентификации пользователь может отправить запрос на создание сертификата на получение определенного количества средств. Созданный сертификат впоследствии может быть использован любым пользователем до истечения срока действия. Сертификат имеет следующий формат: первые 32 байта - цифровой идентификатор сертификата, следующие 66 байт - цифровая подпись цифрового идентификатора (`v`, `r`, `s`).
 
 ##### Использование скрипта
 ```shell
 $ faceid.py --gift <pin code> <value> <expire date>
 ```
-Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя. В блокчейн сеть отправляется транзакция к контракту управления сертификатами на создание нового сертификата на указанную сумму в `wei`, действующий до указанной даты в формате `HH:MM DD.MM.YYYY`. В терминал выводится созданный цифровой сертификат.
+Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя, в блокчейн сеть отправляется транзакция к контракту управления сертификатами на создание нового сертификата на указанную сумму в `wei`, действующий до указанной даты в формате `HH:MM DD.MM.YYYY`. В терминал выводится созданный цифровой сертификат.
+
 
 #### US-019 Использование сертификата на получение средств 
 
+После идентификации пользователь может отправить запрос на получение средств с уже созданного сертификата. Сертификат может быть использован только один раз и только до истечения указанного при создании срока годности.
+
 ##### Использование скрипта
 ```shell
-$ faceid.py --receive <pin code> <hex code of certificate>
+$ faceid.py --receive <pin code> <certificate>
 ```
+Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя. В блокчейн сеть отправляется транзакция к контракту управления сертификатами на получение средств c сертификата.
+
 
 #### US-020 Вернуть средства из неиспользованных сертификатов 
+
+После идентификации пользователь может отправить запрос на возврат средств с уже созданного сертификата после истечения срока годности. Возврат может быть осуществлен только один раз и только с аккаунта создателя сертификата. 
 
 ##### Использование скрипта
 ```shell
 $ faceid.py --withdraw <pin code>
 ```
 
+Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя. В блокчейн сеть отправляется транзакция к контракту управления сертификатами на возврат средств c сертификата.
+
 #### US-021 Получение истории платежей 
+
+После индентификации пользователь может получить список платежей, связанных с аккаунтом данного пользователя.
 
 ##### Использование скрипта
 ```shell
-$ faceid.py --ops <pin code>
+$ faceid.py --ops 1234
 ```
+
+Используя идентификатор, содержащийся в `person.json`, и PIN-код скрипт генерирует приватный ключ пользователя. В блокчейн сеть отправляется запрос на баланс аккаунта, полученного из приватного ключа.
+
+История платежей отображается с момента первого подтверждения регистрации соответствия аккаунта, для которого отображаются платежи. В истории 
+
+Сумма в каждой строчке, обозначающей платеж, всегда отображается в poa c точностью до 6 знака.
+
+##### Критерий оценивания AC-021-01
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --ops 1234
+Operations:
+13:01:42 04.03.2019 FROM: +79418552734 2.5 poa
+18:31:52 08.03.2019 FROM: +79019594479 0.5 poa
+18:32:02 08.03.2019   TO: +79418552734 0.15 poa
+18:33:37 08.03.2019 FROM: +79114505724 0.3 poa
+18:34:17 08.03.2019   TO: +79286975842 1.3 poa
+$ faceid.py --balance 1234
+Your balance is 2.349641 poa
+```
+_Комментарий_:
+
+Поскольку на данном аккаунте был ненулевой баланс до подтверждения, поэтому итоговый баланс аккаунта больше суммы всех входящих платежей за вычетом всех исходящих платежей.
+
+##### Критерий оценивания AC-021-02
+```shell
+$ cat person.json
+{"id": "81e1dbe6-e0e0-4cf6-af4f-ff8341833b55"}
+$ faceid.py --ops 6801
+No operations found
+$ faceid.py --balance 1234
+Your balance is 598458 finney
+```
+_Комментарий_:
+
+Поскольку на данном аккаунте не было операций, то выводится сообщение об ошибке.
+
+##### Критерий оценивания AC-021-03
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --ops 1234
+Operations:
+13:01:42 04.03.2019 FROM: +79010451275 2.5 poa
+18:31:52 08.03.2019 FROM: +79019594479 0.5 poa
+18:32:02 08.03.2019   TO: +79010451275 0.15 poa
+18:33:37 08.03.2019 FROM: +79114505724 0.3 poa
+18:34:17 08.03.2019   TO: +79286975842 1.3 poa
+$ kyc.py --list del
+0x32276b955E7dCBeA1C97fe8f06053E760E739e8d: +79010451275
+$ kyc.py --confirm 0x32276b955E7dCBeA1C97fe8f06053E760E739e8d
+Confirmed by 0xbdf07588e6652aaee28b29156c2ae266c9ba46e253ddd99b466cce31f77c51a3
+$ faceid.py --ops 1234
+Operations:
+13:01:42 04.03.2019 FROM: +79010451275 2.5 poa
+18:31:52 08.03.2019 FROM: +79019594479 0.5 poa
+18:32:02 08.03.2019   TO: +79010451275 0.15 poa
+18:33:37 08.03.2019 FROM: +79114505724 0.3 poa
+18:34:17 08.03.2019   TO: +79286975842 1.3 poa
+```
+_Комментарий_:
+
+Несмотря на то, что соответствие между аккаунтом и телефонным номером было удалено, в списке платежей выводится номер телефона, соответствовавший аккаунту в момент проведения конкретных платежей.
+
+##### Критерий оценивания AC-021-04
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --ops 1234
+Operations:
+13:01:42 04.03.2019 FROM: +79010451275 2.5 poa
+18:31:52 08.03.2019 FROM: +79019594479 0.5 poa
+18:32:02 08.03.2019   TO: +79010451275 0.15 poa
+18:33:37 08.03.2019 FROM: +79114505724 0.3 poa
+18:34:17 08.03.2019   TO: +79286975842 1.3 poa
+$ kyc.py --list del
+0xEF8eedf35C2D212bf70389ecA193622e833C3652: +79010451275
+$ kyc.py --confirm 0xEF8eedf35C2D212bf70389ecA193622e833C3652
+Confirmed by 0xbdf07588e6652aaee28b29156c2ae266c9ba46e253ddd99b466cce31f77c51a3
+$ cat person.json
+{"id": "81e1dbe6-e0e0-4cf6-af4f-ff8341833b55"}
+$ faceid.py --add 6801 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ kyc.py --confirm 0xEF8eedf35C2D212bf70389ecA193622e833C3652
+Confirmed by 0xbdf07588e6652aaee28b29156c2ae266c9ba46e253ddd99b466cce31f77c51a3
+$ faceid.py --send 6801 +79873344556 15026871000000000000
+Payment of 10 finney to +79873344556 scheduled
+Transaction Hash: 0x27c9181caeb55d37e1105fa1a8648db7fe50f79064b98e56b8e854e3abb43728
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --ops 1234
+Operations:
+13:01:42 04.03.2019 FROM: +79010451275 2.5 poa
+18:31:52 08.03.2019 FROM: +79019594479 0.5 poa
+18:32:02 08.03.2019   TO: +79010451275 0.15 poa
+18:33:37 08.03.2019 FROM: +79114505724 0.3 poa
+18:34:17 08.03.2019   TO: +79286975842 1.3 poa
+18:39:34 08.03.2019 FROM: +79991234567 1.502687 poa
+```
+_Комментарий_:
+
+Несмотря на то, что соответствие между аккаунтом и телефонным номером было изменено, в списке платежей выводятся оба номера телефона, соответствовавшие аккаунту в момент проведения конкретных платежей.
+
+##### Критерий оценивания AC-021-05
+```shell
+$ cat person.json
+{"id": "81e1dbe6-e0e0-4cf6-af4f-ff8341833b55"}
+$ faceid.py --ops 1010
+No operations found
+```
+_Комментарий_:
+
+Поскольку ситуация, когда неправильный приватный ключ сформирован из-за некорретного PIN-кода, неотличима от ситуации, когда нет операций ассоциированных с аккаунтом, в терминал выводится сообщение об ошибке.
+
+##### Критерий оценивания AC-021-05
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ faceid.py --ops 6801
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла registrar.json, содержащего адрес контракта регистра соответствий. 
+
+##### Критерий оценивания AC-021-06
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ faceid.py --ops 6801
+Seems that the contract address is not the certificates contract. 
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле registrar.json, не принадлежит контракту регистра соответствий. 
 
 #### US-022 Получение истории платежей, включая использование сертификатов
 
@@ -681,6 +1812,175 @@ $ kyc.py --list add
 
 Через RPC узел блокчейн сети отправляется запрос к контракту, адрес которого указан в поле `registrar` файла `registrar.json`, на получение всех неотменненных запросов на регистрацию соответствий. Запросы выводятся в формате `отправитель запроса: номер телефона`
 
+##### Критерий оценивания AC-023-01
+
+```shell
+$ setup.py --deploy
+KYC Registrar: 0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd
+Payment Handler: 0x95426f2bC716022fCF1dEf006dbC4bB81f5B5164
+$ cat registrar.json
+{"registrar": {"address": "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd", "startBlock": 123456}, "payments": {"address": "0x95426f2bC716022fCF1dEhttps://gasprice.poa.network/f006dbC4bB81f5B5164", "startBlock": 123457}}
+$ kyc.py --list add
+No KYC registration requests found
+```
+_Комментарий_:
+
+Поскольку в контракте, адрес которого указан в файле `registrar.json`, не было зарегистрировано ни одного запроса регистрации соответствия аккаунта, то выдается соответствующее сообщение. Транзакции в сеть не отправляются.
+
+##### Критерий оценивания AC-023-02
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list add
+No KYC registration requests found
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --add 6104 +79220012534
+Registration request sent by 0xc95d677eb6f3fcb55e08274ae0eed1970391e637f1062426a3406fd7d4cfcfcb
+$ rm person.json
+$ kyc.py --list add
+0x5bAD5c60781111094C247F81792eDDE9bb38818A: +79220012534
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+```
+_Комментарий_:
+
+Все два запроса на регистрацию соответствия, отправленные в контракт, адрес которого указан в файле `registrar.json`, отображены в выводе команды `kyc.py --list`. Сортировка вывода происходит по номеру телефона. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-023-03
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list add
+No KYC registration requests found
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --add 6104 +79991234567
+Registration request sent by 0xc95d677eb6f3fcb55e08274ae0eed1970391e637f1062426a3406fd7d4cfcfcb
+$ rm person.json
+$ kyc.py --list add
+0x5bAD5c60781111094C247F81792eDDE9bb38818A: +79991234567
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+```
+_Комментарий_:
+
+Два запроса на регистрацию соответствия, отправленные в контракт, адрес которого указан в файле `registrar.json`, приняты контрактом даже если они - для регистрации одного и того же номера телефона. Оба запроса отображены в выводе команды `kyc.py --list`. Сортировка вывода происходит сначала по номеру телефона, затем по адресу аккаунта. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-023-04
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list add
+No KYC registration requests found
+$ cat person.json
+{"id": "5069b18c-9f6d-42f9-aa5f-a5f6b924d87e"}
+$ faceid.py --add 1096 +79125812224
+Registration request sent by 0x01bef0afddd3ebc79e80c0385bf5e0bfea871b97d937c74462a3221094b44c1c
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --add 6104 +79220012534
+Registration request sent by 0xc95d677eb6f3fcb55e08274ae0eed1970391e637f1062426a3406fd7d4cfcfcb
+$ cat person.json
+{"id": "5069b18c-9f6d-42f9-aa5f-a5f6b924d87e"}
+$ faceid.py --cancel 1096
+Registration canceled by 0x99a7e5f28b653d63b5c0bbddebc91678530ee461e4fa21c9ab2f281d28b8da5e
+$ rm person.json
+$ kyc.py --list add
+0x5bAD5c60781111094C247F81792eDDE9bb38818A: +79220012534
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+```
+_Комментарий_:
+
+Только два запроса на регистрацию соответствия, отправленные в контракт, адрес которого указан в файле `registrar.json`, отображены в выводе команды `kyc.py --list`. Отмененный запрос не отображается. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-023-05
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list add
+No KYC registration requests found
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --add 6104 +79220012534
+Registration request sent by 0xc95d677eb6f3fcb55e08274ae0eed1970391e637f1062426a3406fd7d4cfcfcb
+$ faceid.py --cancel 6104
+Registration canceled by 0x99a7e5f28b653d63b5c0bbddebc91678530ee461e4fa21c9ab2f281d28b8da5e
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --cancel 4590
+Registration canceled by 0xc90366c708b1c1e8462da76682338d5262a785d592918ed915e1292ac0d6178a
+$ rm person.json
+$ kyc.py --list add
+No KYC registration requests found
+```
+_Комментарий_:
+
+Поскольку все запросы на регистрацию соответствий, оптравленные в контракт, адрес которого указан в файле `registrar.json`, были отменены, то в выводе команды `kyc.py --list` выдается соответствующее сообщение. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-023-06
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list add
+No KYC registration requests found
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xa7f3239715ff731a3d6fc477b18e35b9b0a9e1ede84bca5e91517e8e5bf1cc69
+$ faceid.py --find /path/to/video23.avi
+168f2e61-089f-88a9-53b2-3b3d0c497704 identified
+$ faceid.py --del 5981
+Unregistration request sent by 0xda0e2a124e6d37080b539f1bb0dc4c698b8025b62dcc56d75efc1115d87381aa
+$ rm person.json
+$ kyc.py --list add
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+```
+_Комментарий_:
+
+Только запросы на регистрацию соответствий, оптравленные в контракт, адрес которого указан в файле `registrar.json`, отображаются в выводе команды `kyc.py --list`. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-023-07
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ kyc.py --list add
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла `registrar.json`, содержащего адрес контракта регистра соответствий. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-023-08
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ kyc.py --list add
+Seems that the contract address is not the registrar contract
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле `registrar.json`, не принадлежит контракту регистра соответствий.
+
 #### US-024 Получение всех запросов на удаление соответствий
 
 Любой пользователь сервиса,  может получить список всех запросов на удаление соответствий. 
@@ -691,6 +1991,151 @@ $ kyc.py --list del
 ```
 
 Через RPC узел блокчейн сети отправляется запрос к контракту, адрес которого указан в поле `registrar` файла `registrar.json`, на получение всех неотменненных запросов на удаление соответствий. Запросы выводятся в формате `отправитель запроса: номер телефона`
+
+##### Критерий оценивания AC-024-01
+
+```shell
+$ setup.py --deploy
+KYC Registrar: 0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd
+Payment Handler: 0x95426f2bC716022fCF1dEf006dbC4bB81f5B5164
+$ cat registrar.json
+{"registrar": {"address": "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd", "startBlock": 123456}, "payments": {"address": "0x95426f2bC716022fCF1dEhttps://gasprice.poa.network/f006dbC4bB81f5B5164", "startBlock": 123457}}
+$ kyc.py --list add
+No KYC unregistration requests found
+```
+_Комментарий_:
+
+Поскольку в контракте, адрес которого указан в файле `registrar.json`, не было зарегистрировано ни одного запроса удаления соответствия аккаунта, то выдается соответствующее сообщение. Транзакции в сеть не отправляются.
+
+##### Критерий оценивания AC-024-02
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list del
+No KYC unregistration requests found
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --del 6104
+Unregistration request sent by 0xac09810740600c31fa69f9db79ed6fc3e3281f758a950fe1fb254a3a3ae571b6
+$ rm person.json
+$ kyc.py --list del
+0x5bAD5c60781111094C247F81792eDDE9bb38818A: +79220012534
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+```
+_Комментарий_:
+
+Все два запроса на удаление соответствия, отправленные в контракт, адрес которого указан в файле `registrar.json`, отображены в выводе команды `kyc.py --list`. Сортировка вывода происходит по номеру телефона. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-024-03
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list del
+No KYC unregistration requests found
+$ cat person.json
+{"id": "5069b18c-9f6d-42f9-aa5f-a5f6b924d87e"}
+$ faceid.py --del 1096
+Unregistration request sent by 0x631897788617bc63fb0292c44f57a6c3824e4264bc88fb4e3c08b910f3f417fc
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x7dbef654fd5c6145f82b72cd5dbbfc6d48fd276b8a7a4371a61d55985b9d6d8b
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --del 6104
+Unregistration request sent by 0xf65e3ff0de05ca77aa8c820bd528facc139ee4b0986f7c350f3198928bd2c72b
+$ cat person.json
+{"id": "5069b18c-9f6d-42f9-aa5f-a5f6b924d87e"}
+$ faceid.py --cancel 1096
+Unregistration canceled by 0x24036ccf201a67256250eabe66d3f9fd72f9c4d022f225a8ee964be060dcb993
+$ rm person.json
+$ kyc.py --list del
+0x5bAD5c60781111094C247F81792eDDE9bb38818A: +79220012534
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+```
+_Комментарий_:
+
+Только два запроса на удаление соответствия, отправленные в контракт, адрес которого указан в файле `registrar.json`, отображены в выводе команды `kyc.py --list`. Отмененный запрос не отображается. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-024-04
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list del
+No KYC unregistration requests found
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --del 4590
+Unregistration request sent by 0x535306ee4b42c92aecd0e71fca98572064f049c2babb2769faa3bbd87d67ec2d
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --del 6104
+Unregistration request sent by 0x425a3d65e6c6cbbf01507814af1ac7512f93cceb8411381e1d5fb7adbfd44881
+$ faceid.py --cancel 6104
+Unregistration canceled by 0xd772c1d26a64e4114af99655ec353dc3dba1b12ba483c0fc852e01d0432d3aa1
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --cancel 4590
+Unregistration canceled by 0xe7fcf89c34605f23590ff58513f1080dc375dd06cc5e256320151057827a258a
+$ rm person.json
+$ kyc.py --list del
+No KYC unregistration requests found
+```
+_Комментарий_:
+
+Поскольку все запросы на удаление соответствий, оптравленные в контракт, адрес которого указан в файле `registrar.json`, были отменены, то в выводе команды `kyc.py --list` выдается соответствующее сообщение. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-024-05
+
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --list del
+No KYC unregistration requests found
+$ faceid.py --find /path/to/video23.avi
+168f2e61-089f-88a9-53b2-3b3d0c497704 identified
+$ faceid.py --del 5981
+Unregistration request sent by 0xa413d075ec804ca282f1637fedbe82ecda1992097d14e4d900d254e0f5fe523d
+$ faceid.py --find /path/to/video24.avi
+37da04e7-f471-49c7-a54c-a08f05950fc5 identified
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0x2f5ccb30fa919306cd2899a81c7670a9b1be09e8c15a0b78b0fbbc777d15e97b
+$ rm person.json
+$ kyc.py --list del
+0x7F3faAe3f2238439d6ea5A320caB969aC62b68e3: +79870194581
+```
+_Комментарий_:
+
+Только запросы на удаление соответствий, оптравленные в контракт, адрес которого указан в файле `registrar.json`, отображаются в выводе команды `kyc.py --list`. Транзакции этой командой в сеть не отправляются.
+
+##### Критерий оценивания AC-024-06
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ kyc.py --list del
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла `registrar.json`, содержащего адрес контракта регистра соответствий. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-024-07
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ kyc.py --list del
+Seems that the contract address is not the registrar contract
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле `registrar.json`, не принадлежит контракту регистра соответствий.
 
 #### US-025 Подтверждение запросов на регистрацию или удаление соответствий
 
@@ -705,9 +2150,420 @@ $ kyc.py --confirm <address>
   * если запрос был на регистрацию соответствия между аккаунтом и телефонным номером, то это соответствие становится доступным для других пользователей;
   * если запрос был на удаление соответствия, то соответствие перестает существовать - по номеру телефона, который указывался в соответствии, больше нельзя будет получить адрес аккаунта.
 
+##### Критерий оценивания AC-025-01
+
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+$ setup.py --owner registrar
+Admin account: 0x9cce34F7aB185c7ABA1b7C8140d620B4BDA941d6
+$ kyc.py --list add
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Confirmed by 0x9960ed3041b9945289da338fa273462c820f58427408d57789c0e1400ad5c9bb
+$ kyc.py --list add
+No KYC registration requests found
+```
+
+Поскольку аккаунт, чей приватный ключ указан в `network.json`, обладает полномочиями на подтверждение запросов на регистрацию соответствий, посланная транзакция включается в блок со статусом успешного исполнения. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+При подтверждении контракт производит событие (`event`) `RegistrationConfirmed`, в с указанием аккаунта, отправившего запрос:
+
+```solidity
+event RegistrationConfirmed(address indexed sender);
+```
+
+Для проведения транзакции выбрана цена из значения `fast`, возвращенного сервисом `https://gasprice.poa.network`.
+
+##### Критерий оценивания AC-025-02
+
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "6fadbaf86d2aa9c9e34a85df385a2c9afa9509e09756634e72bbcf94a5ceb213",
+$ setup.py --owner registrar
+Admin account: 0x5e4d710a4995bFA3F6560effcad36C10ebac998C
+$ kyc.py --list add
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Failed but included in 0x9960ed3041b9945289da338fa273462c820f58427408d57789c0e1400ad5c9bb
+$ kyc.py --list add
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+```
+
+Поскольку аккаунт, чей приватный ключ указан в `network.json`, не обладает полномочиями на подтверждение запросов на регистрацию соответствий, посланная транзакция включается в блок, но статус ее исполнения - ошибка. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-03
+
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+$ setup.py --owner registrar
+Admin account: 0x9cce34F7aB185c7ABA1b7C8140d620B4BDA941d6
+$ kyc.py --list del
+0x32276b955E7dCBeA1C97fe8f06053E760E739e8d: +79010451275
+$ kyc.py --confirm 0x32276b955E7dCBeA1C97fe8f06053E760E739e8d
+Confirmed by 0xbdf07588e6652aaee28b29156c2ae266c9ba46e253ddd99b466cce31f77c51a3
+$ kyc.py --list del
+No KYC unregistration requests found
+```
+
+Поскольку аккаунт, чей приватный ключ указан в `network.json`, обладает полномочиями на подтверждение запросов на удаление соответствий, посланная транзакция включается в блок со статусом успешного исполнения. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+При подтверждении контракт производит событие (`event`) `UnregistrationConfirmed`, в с указанием аккаунта, отправившего запрос:
+
+```solidity
+event UnregistrationConfirmed(address indexed sender);
+```
+
+Для проведения транзакции выбрана цена из значения `fast`, возвращенного сервисом `https://gasprice.poa.network`.
+
+##### Критерий оценивания AC-025-04
+
+```shell
+$ cat network.json | python -mjson.tool | grep privKey 
+    "privKey": "6fadbaf86d2aa9c9e34a85df385a2c9afa9509e09756634e72bbcf94a5ceb213",
+$ setup.py --owner registrar
+Admin account: 0x5e4d710a4995bFA3F6560effcad36C10ebac998C
+$ kyc.py --list del
+0x32276b955E7dCBeA1C97fe8f06053E760E739e8d: +79010451275
+$ kyc.py --confirm 0x32276b955E7dCBeA1C97fe8f06053E760E739e8d
+Failed but included in 0x360f73c63c063fae5d1e9ead454a4836ec470b54de0960f05909b7f8c7c140ba
+$ kyc.py --list del
+0x32276b955E7dCBeA1C97fe8f06053E760E739e8d: +79010451275
+```
+
+Поскольку аккаунт, чей приватный ключ указан в `network.json`, не обладает полномочиями на подтверждение запросов на удаление соответствий, посланная транзакция включается в блок, но статус ее исполнения - ошибка. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-05
+
+```shell
+$ kyc.py --list add
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ faceid.py --cancel 6104
+Registration canceled by 0x26a975632f70533c9512e57b565b8ce8e2befee6b08dfbc27c4a897a20e2c1d6
+$ kyc.py --list add
+No KYC registration requests found
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Failed but included in 0xd534ca6cd7b201fa32702a1b5b6a38881f8a63e70f9d3e1a8a953d61c6524405
+```
+
+Аккаунт, чей приватный ключ указан в `network.json`, обладает полномочиями на подтверждение запросов на регистрацию соответствий. А поскольку запрос на регистрацию соответствия был отменен, посланная транзакция на подтерждение регистрации включается в блок, но статус ее исполнения - ошибка. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-06
+
+```shell
+$ kyc.py --list add
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Confirmed by 0x2b2a51e6e75ece6beb4c5ed9d51d381a6766e4929f34c8c545b0c0f22a890e3d
+$ faceid.py --cancel 6104
+No requests found
+```
+
+Транзакция, посланная в блокчейн сеть, на подвтерждение запроса регистрации соответствия включается в блок со статусом успешного исполнения. Статус можно подтвердить для данной транзакции в браузере блоков. Поскольку успешного подтверждения запрос теряет актуальность, то его нельзя в дальнейшем отменить.
+
+##### Критерий оценивания AC-025-07
+
+```shell
+$ kyc.py --list del
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ faceid.py --cancel 6104
+Unregistration canceled by 0xcfe93e00cbaaf37bad5f0b2ff3ab98072b4f3a2656e148b3bcccb553f2fa678f
+$ kyc.py --list del
+No KYC unregistration requests found
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Failed but included in 0x890f693d9ea1b595bb4a33efee4a21d60a63ffd2ec40c37883b92f82fc5da52b
+```
+
+Аккаунт, чей приватный ключ указан в `network.json`, обладает полномочиями на подтверждение запросов на удаление соответствий. А поскольку запрос на удаление соответствия был отменен, посланная транзакция на подтерждение удаления включается в блок, но статус ее исполнения - ошибка. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-08
+
+```shell
+$ kyc.py --list del
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Confirmed by 0x7b0ac78d4efde931c083b037c1c7f91b4cc8f27a159c1264ae53aa473f3e4e6a
+$ faceid.py --cancel 6104
+No requests found
+```
+
+Транзакция, посланная в блокчейн сеть, на подвтерждение запроса удаления соответствия включается в блок со статусом успешного исполнения. Статус можно подтвердить для данной транзакции в браузере блоков. Поскольку успешного подтверждения запрос теряет актуальность, то его нельзя в дальнейшем отменить.
+
+##### Критерий оценивания AC-025-09
+
+```shell
+$ kyc.py --list add
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Confirmed by 0x2b2a51e6e75ece6beb4c5ed9d51d381a6766e4929f34c8c545b0c0f22a890e3d
+$ faceid.py --del 6104
+Unregistration request sent by 0x5a10742dc65b7a28255fe7b4d2b9f290786892e1e437654e2ccb53bed1bfe01a
+```
+
+Транзакция, посланная в блокчейн сеть, на подвтерждение запроса регистрации соответствия включается в блок со статусом успешного исполнения. Статус можно подтвердить для данной транзакции в браузере блоков. Теперь для установленного соответствия есть возможность отправить запрос на его удаление.
+
+##### Критерий оценивания AC-025-10
+
+```shell
+$ kyc.py --list del
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ kyc.py --confirm 0xFCE1151f31065913F124917E0F2Ba5a6e29D6426
+Confirmed by 0xe3cb0ca89f217511efd4af6caea80048f9921bac3b9063844e65469cf515f138
+$ faceid.py --add 6104 +79991234567
+Registration request sent by 0x41c2cc0c9e11501a3eec0956812949b1b9b2d14d9dc7118df2ef1aac71f18767
+```
+
+Транзакция, посланная в блокчейн сеть, на подвтерждение запроса удаления соответствия включается в блок со статусом успешного исполнения. Статус можно подтвердить для данной транзакции в браузере блоков. Поскольку у данного аккаунта больше нет актуального соответствия, то есть возможность отправить запрос на создание нового соответствия.
+
+##### Критерий оценивания AC-025-11
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x06a79e67d636d828aa58884bc7fed897698bb40922db4eadf708235cd9c2de2c
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --add 6104 +79991234567
+Such phone number already registered
+```
+
+При запросе на регистрацию соответствия выводится сообщение об ошибке, поскольку такой номер телефона уже зарегистрирован в системе. Транзакция в блокчейн не отправляется.
+
+##### Критерий оценивания AC-025-12
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x06a79e67d636d828aa58884bc7fed897698bb40922db4eadf708235cd9c2de2c
+```
+
+Если из транзакции c идентификатором `0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d` извлечь поле `input` и отправить его в поле `input` новой транзакции с аккаунта, который отличется от аккаунта, отправившего эту транзакцию, на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка, поскольку запрашиваемый в данных телефонный номер уже зарегистрирован в системе. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-13
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ cat person.json
+{"id": "229b3307-fe57-4ddc-b7e7-ac9f1de7abda"}
+$ faceid.py --add 3928 +79991234567
+Registration request sent by 0x0330c0d84464f890f3c81afbba7a3a05e0e864ec2e31676dedcb075b2bf855a0
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x06a79e67d636d828aa58884bc7fed897698bb40922db4eadf708235cd9c2de2c
+```
+
+Если из транзакции, которая была отправлена в результате команды `kyc.py --confirm`, извлечь поле `input` и отправить его в новой транзакции снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка по причине того, что такое соответствие уже подтверждено. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-14
+
+```shell
+$ kyc.py --list add
+0xFf8E5C14d240d76EAe66aEF1A3a99895e08a0c3F: +79271173070
+0xa898240Ba2D5C0C2537BC187CaC5B70843EAC8dD: +79397411449
+0x60861DE06626f60d89f5795AD950B502CE00A8B0: +79017422129
+$ kyc.py --list del
+0x5bAD5c60781111094C247F81792eDDE9bb38818A: +79220012534
+0xFCE1151f31065913F124917E0F2Ba5a6e29D6426: +79991234567
+$ kyc.py --confirm 0x60861DE06626f60d89f5795AD950B502CE00A8B1
+Failed but included in 0x18e28784ed3043bccd713a5f99352b74c3ebc4ca469216a686040f025571a184
+```
+
+Поскольку запрос, который пытается подтвердиться, не существует, то посланная транзакция включается в блок, но статус ее исполнения - ошибка. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-15
+```shell
+$ cat person.json
+{"id": "da04e377-47f1-c749-54ca-0fc5a08f0595"}
+$ faceid.py --add 6104 +79220012534
+Registration request sent by 0xa65d03add95baf22e482ebcd3423aa9bf9d8b0ec3fca2831960080b84536d360
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x05dee4192aaad4acb149f9615e8a72a761fc8cdb1d8b4e9c00fe66665f5a8184
+$ faceid.py --del 6104
+Unregistration request sent by 0x1b6edb65b6c2611a7285cc668f4110f574a7bc3b0d28690b40a16f141eada39a
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x1c6c2dd4b412e3c82ad1f10cef9a1a4112bc1a128dc4d12242d781aa03ccbf2c
+```
+_Комментарий_:
+
+Если из транзакции с идентификатором `0x1b6edb65b6c2611a7285cc668f4110f574a7bc3b0d28690b40a16f141eada39a`, извлечь поле `input` и отправить его в новой транзакции снова в поле `input` на адрес контракта регистра соответствий, то эта транзакция будет включена в блок, но статус ее исполнения будет - ошибка поскольку данный аккаунт больше не зарегистрирован в регистре соответствий. Статус можно подтвердить для данной транзакции в браузере блоков.
+
+##### Критерий оценивания AC-025-16
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ kyc.py --confirm 0x60861DE06626f60d89f5795AD950B502CE00A8B0
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла `registrar.json`, содержащего адрес контракта регистра соответствий. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-025-17
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ kyc.py --confirm 0x60861DE06626f60d89f5795AD950B502CE00A8B0
+Seems that the contract address is not the registrar contract
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле `registrar.json`, не принадлежит контракту регистра соответствий.
+
+##### Критерий оценивания AC-025-18
+```shell
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --confirm 0x60861DE06626f60d89f5795AD950B502CE00A8B0
+No admin account found
+```
+
+Выдается сообщение об ошибке, если в `network.json` нет приватного ключа аккаунта, от имени которого выполнялось бы подтверждение.
+
 #### US-026 Получение аккаунта по номеру телефона
+
+Любой пользователь по номеру телефона может получить аккаунт соответствующий номеру телефона, если такое соответствие было зарегистрировано.
 
 ##### Использование скрипта
 ```shell
 $ kyc.py --get <phone number>
 ```
+
+Через RPC узел блокчейн сети отправляется запрос к контракту, адрес которого указан в поле `registrar` файла `registrar.json`, на получение соответствия. Если соответствие не зарегистрировано, контракт возвращает `0x000000000000000000000000000000000000000`.
+
+##### Критерий оценивания AC-026-01
+
+```shell
+$ setup.py --deploy
+KYC Registrar: 0x23B40E5bCd06D819ba81A09e0340Ec06460d2b7D
+Payment Handler: 0xE797A1da01eb0F951E0E400f9343De9d17A06bac
+$ kyc.py --get +79017422129
+Correspondence not found
+```
+
+Поскольку в контракте не было зарегистированных соответствий, то соответствующее сообщение выводится на экран.
+
+##### Критерий оценивания AC-026-02
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x06a79e67d636d828aa58884bc7fed897698bb40922db4eadf708235cd9c2de2c
+$ cat person.json
+{"id": "229b3307-fe57-4ddc-b7e7-ac9f1de7abda"}
+$ faceid.py --add 3928 +79418552734
+Registration request sent by 0x0330c0d84464f890f3c81afbba7a3a05e0e864ec2e31676dedcb075b2bf855a0
+$ kyc.py --confirm 0xdCaBFD5c76D3717567568710a735717bf0C792De
+Confirmed by 0x840881693295f1213bc621234bc18aa1727c90c9e1416799df22e18f9c7c029b
+$ rm person.rm
+$ cat network.json
+{"rpcUrl": "https://sokol.poa.network", "gasPriceUrl": "https://gasprice.poa.network/", "defaultGasPrice": 2000000000}
+$ kyc.py --get +79991234567
+Registered correspondence: 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+```
+
+Для одно из зарегистированных соответствий выводится аккаунт, с которым связан указанных номер телефона. Транзакция в сеть не отправляется. 
+
+##### Критерий оценивания AC-026-03
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x06a79e67d636d828aa58884bc7fed897698bb40922db4eadf708235cd9c2de2c
+$ kyc.py --get +79991234567
+Registered correspondence: 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+$ faceid.py --del 4590
+Unregistration request sent by 0xc7d00ca82740de2eef417cfa47c2970dbdec49b2a6d15c64e85f83cf97939ca5
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x0697183ae8eedd43b56f90cfa450ea6e3ac27fb69f1056ee33ccc5a9587bcd2a
+$ kyc.py --get +79991234567
+Correspondence not found
+```
+
+В первом случае, соответствие зарегистрировано и поэтому вызов команды позволяет получить аккаунт по номеру телефона. К моменты вызова команды второй раз, соответствие удалено, поэтому выводится сообщение об ошибке.
+
+##### Критерий оценивания AC-026-04
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ kyc.py --get +79991234567
+Correspondence not found
+```
+
+Хотя регистрация соответствия только была запрошена, оно не было подтверждено, поэтому выводится сообщение об ошибке.
+
+##### Критерий оценивания AC-026-05
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x06a79e67d636d828aa58884bc7fed897698bb40922db4eadf708235cd9c2de2c
+$ faceid.py --del 4590
+Unregistration request sent by 0xc7d00ca82740de2eef417cfa47c2970dbdec49b2a6d15c64e85f83cf97939ca5
+$ kyc.py --get +79991234567
+Registered correspondence: 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+```
+
+Поскольку удаление соответствия не было было подтверждено, поэтому выводится информация об аккаунте.
+
+##### Критерий оценивания AC-026-06
+
+```shell
+$ cat person.json
+{"id": "37da04e7-f471-49c7-a54c-a08f05950fc5"}
+$ faceid.py --add 4590 +79991234567
+Registration request sent by 0xb004fbd84afb38927636fa378c0a62a86a02b00862b6ff80fef4d6e948c0571d
+$ cat person.json
+{"id": "229b3307-fe57-4ddc-b7e7-ac9f1de7abda"}
+$ faceid.py --add 3928 +79991234567
+Registration request sent by 0x0330c0d84464f890f3c81afbba7a3a05e0e864ec2e31676dedcb075b2bf855a0
+$ kyc.py --confirm 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+Confirmed by 0x06a79e67d636d828aa58884bc7fed897698bb40922db4eadf708235cd9c2de2c
+$ kyc.py --get +79991234567
+Registered correspondence: 0x5bAD5c60781111094C247F81792eDDE9bb38818A
+```
+
+Регистрация соответствия первого аккаунта была подтверждена, регистрация второго аккаунта не была подтверждена, поэтому выводится информация об аккаунте, отправившем первый запрос на регистрацию.
+
+##### Критерий оценивания AC-026-07
+```shell
+$ cat registrar.json
+cat: registrar.json: No such file or directory
+$ kyc.py --get +79991234567
+No contract address
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в текущей директории нет файла `registrar.json`, содержащего адрес контракта регистра соответствий. Транзакция в блокчейн сеть не отправляется.
+
+##### Критерий оценивания AC-026-08
+```shell
+$ cat registrar.json
+{"registrar": {"address": "0x340Ec06460d9b2b7D23B40E5bCd0a81A09e06D81", "startBlock": 456123}, "payments": {"address": "0x81A09e06D81797AE2b7D23B40E5bCd0a1da01eb0F951x", "startBlock": 456125}}
+$ kyc.py --get +79991234567
+Seems that the contract address is not the registrar contract
+```
+_Комментарий_:
+
+Выдается сообщение об ошибке, если в адрес контракта, указанного в файле `registrar.json`, не принадлежит контракту регистра соответствий.
+
