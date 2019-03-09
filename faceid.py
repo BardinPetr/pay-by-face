@@ -75,12 +75,6 @@ def send_add_user(args):
 
 def send_del_user(args):
     addr, pk = None, None
-    try:
-        pk = get_private_key(parceJson('person.json')['id'], args[0])
-        addr = toAddress(pk)
-    except:
-        print("ID is not found")
-        return
 
     data = None
     try:
@@ -88,6 +82,13 @@ def send_del_user(args):
         _ = data['registrar']
     except:
         print("No contract address")
+        return
+
+    try:
+        pk = get_private_key(parceJson('person.json')['id'], args[0])
+        addr = toAddress(pk)
+    except:
+        print("ID is not found")
         return
 
     contract = None
