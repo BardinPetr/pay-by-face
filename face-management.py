@@ -36,7 +36,7 @@ def create_person(*args, simple=True):
         else:
             print("Video does not contain any face")
     else:
-        create_frames_hard(args[0], type=3)
+        create_frames_hard(args[3], type=3)
 
 
 def create_frames_hard(video, type):
@@ -55,6 +55,7 @@ def create_frames_hard(video, type):
             cap = cv2.VideoCapture(video)
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
             im_frame = cap.read()[1]
+            print(i)
             if (type == 1) or (type == 2):
                 cv2.imwrite("test.jpg", im_frame)
                 res = check_all_right(cf.face.detect, "test.jpg")
@@ -65,9 +66,10 @@ def create_frames_hard(video, type):
                     return False
                 cap.release()
             elif type == 3:
+                all_nice += [0, 0]
                 gray = cv2.cvtColor(im_frame, cv2.COLOR_BGR2GRAY)
                 detector = dlib.get_frontal_face_detector()
-                predictor = dlib.shape_predictor("/opt/shape_predictor_68_face_landmarks.dat")
+                predictor = dlib.shape_predictor("./opt/shape_predictor_68_face_landmarks.dat")
                 rects = detector(gray, 0)
                 eye_ar_thresh = 0.3
                 for ind, rect in enumerate(rects):
@@ -79,10 +81,14 @@ def create_frames_hard(video, type):
                     right_eye = shape[rStart:rEnd]
                     left_ear = eye_aspect_ratio(left_eye)
                     right_ear = eye_aspect_ratio(right_eye)
-                    if (left_ear < eye_ar_thresh) & (right_ear > eye_ar_thresh):
+                    if (left_ear < eye_ar_thresh) & (right_ear > eye_ar_thresh) & (not all_nice[0]):
                         cv2.imwrite("left_eye.jpg", gray)
-                    elif (left_ear > eye_ar_thresh) & (right_ear < eye_ar_thresh):
+                        all_nice[0] = 1
+                    elif (left_ear > eye_ar_thresh) & (right_ear < eye_ar_thresh) & (not all_nice[0]):
                         cv2.imwrite("right_eye.jpg", gray)
+                        all_nice[1] = 1
+                    if sum(all_nice) == 2:
+                        return True
         return face_ids
     else:
         return False
