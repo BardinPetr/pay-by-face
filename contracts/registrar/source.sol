@@ -329,5 +329,3 @@ contract KYCContract {
     return cur.accepts;
     }
 }
-
-

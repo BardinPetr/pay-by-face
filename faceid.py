@@ -241,7 +241,10 @@ def ops(a):
             func_name = type(registrar.decode_function_input(tx['input'])[0]).__name__
             timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%Y-%m-%d %H:%M:%S')
             send_type = 'FROM:'
-            print(timing, send_type, tx['input'])[1], )
+            from pprint import pprint
+            pprint(tx)
+            #val, tp = weighing()
+            print(timing, send_type, tx['input'][1])
         except:
             pass
 
