@@ -169,7 +169,7 @@ def send(a):
     web3.eth.defaultAccount = addr
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
-    registrar.send_point()
+    #registrar.send_point()
     sendto_addr = registrar.get(phone)
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
