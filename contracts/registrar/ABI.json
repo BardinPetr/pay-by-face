@@ -304,7 +304,12 @@
 	},
 	{
 		"constant": true,
-		"inputs": [],
+		"inputs": [
+			{
+				"name": "val",
+				"type": "uint256"
+			}
+		],
 		"name": "sending_point",
 		"outputs": [],
 		"payable": false,

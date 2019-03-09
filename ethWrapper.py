@@ -49,22 +49,29 @@ class ContractWrapper:
 
                             return func
 
-                    elif elem['stateMutability'] == 'nonpayable':
+                    elif elem['stateMutability'] == 'nonpayable' or elem['stateMutability'] == 'pure':
                         def funct(name):
                             def func(*args, **kwargs):
-                                cb = kwargs.pop("cb") if 'cb' in kwargs.keys() else lambda x: None
+                                data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
 
-                                tx = getattr(contract.functions, name)(*args, **kwargs).buildTransaction({
+                                tx = {
+                                    'to': contract.address,
+                                    'value': 0,
+                                    'gas': 1000000,
                                     'gasPrice': gas_price,
-                                    'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
-                                })
+                                    'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount),
+                                    'data': data
+                                }
 
-                                signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
-                                tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
-
-                                cb(tx_hash)
-
-                                tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                tx_receipt = None
+                                for i in range(20):
+                                    try:
+                                        signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+                                        tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
+                                        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                        break
+                                    except:
+                                        pass
                                 return tx_receipt
 
                             return func
