@@ -61,10 +61,12 @@ def send_add_user(args):
 
         try:
             res = contract.add(args[1])
-            print("Registration request sent by", res.transactionHash.hex())
+            if res == -666:
+                print("No funds to send the request")
+            else:
+                print("Registration request sent by", res.transactionHash.hex())
         except:
             print("No funds to send the request")
-            return
     else:
         print("Incorrect phone number")
 
@@ -332,6 +334,60 @@ def ops(a):
             print(i)
 
 
+def generate_actions(none):
+    rotate = ["YawRight", "YawLeft", "RollRight", "RollLeft"]
+    eyes = ["CloseRightEye", "CloseLeftEye"]
+    all = []
+    r = randint(1, 2)
+    if r == 1:
+        r = randint(1, 2)
+        if r == 1:
+            all.append(choice(rotate))
+            r = randint(1, 2)
+            if r == 1:
+                all.append("OpenMouth")
+                all.append(choice(eyes))
+            else:
+                s = choice(eyes)
+                all.append(choice(eyes))
+                eyes.remove(s)
+                all.append(eyes[0])
+        else:
+            s = choice(rotate)
+            all.append(choice)
+            rotate.remove(s)
+            s = choice(rotate)
+            all.append(choice)
+            r = randint(1, 2)
+            if r == 1:
+                all.append("OpenMouth")
+            else:
+                all.append(choice(eyes))
+    else:
+        r = randint(1, 2)
+        if r == 1:
+            all.append(choice(rotate))
+        else:
+            s = choice(rotate)
+            all.append(choice)
+            rotate.remove(s)
+            s = choice(rotate)
+            all.append(choice)
+        r = randint(1, 2)
+        if r == 1:
+            all.append("OpenMouth")
+            all.append(choice(eyes))
+        else:
+            s = choice(eyes)
+            all.append(choice(eyes))
+            eyes.remove(s)
+            all.append(eyes[0])
+    with open('actions.json', 'w') as outfile:
+        json.dump({"actions": all}, outfile)
+
+
+
+
 commands = {
     'balance': request_balance,
     'add': send_add_user,
@@ -341,7 +397,7 @@ commands = {
     'find': idetify_person,
     'ops': ops,
     'gift': gift,
-    # 'receive': receive_gift
+    'actions': generate_actions
 }
 # === Entry point === #
 if __name__ == '__main__':
