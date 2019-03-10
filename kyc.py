@@ -10,13 +10,20 @@ from tools import get_private_key
 
 
 def get(phone_number):
-    registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
-
-    res = registrar.get(phone_number)
-    if res != '0x0000000000000000000000000000000000000000':
-        print('Registered correspondence: ' + res)
+    try:
+        registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+    except:
+        print('No contract address')
     else:
-        print('Correspondence not found')
+        try:
+            res = registrar.get(phone_number)
+
+            if res != '0x0000000000000000000000000000000000000000':
+                print('Registered correspondence: ' + res)
+            else:
+                print('Correspondence not found')
+        except:
+            print('Seems that the contract address is not the registrar contract')
 
 
 def confirm(addr):
