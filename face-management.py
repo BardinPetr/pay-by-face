@@ -140,7 +140,7 @@ def create_frames_hard(args):
         if length < 5:
             return False
         cap.release()
-        for i in range(start, start + length // 6):
+        for i in range(start, start + length // 7):
             cap = cv2.VideoCapture(video)
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
             im_frame = cap.read()[1]
