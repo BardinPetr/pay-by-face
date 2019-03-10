@@ -48,6 +48,10 @@ def create_person(*args, simple=True):
             starts = [[] for _ in range(7)]
             for ind, i in enumerate(range(0, length, length // 6)):
                 starts[ind] = i
+            if not starts[4]:
+                starts[4] = length * 0.66
+            if not starts[5]:
+                starts[5] = length * 0.8
             if not starts[6]:
                 starts[6] = length - 1
             params = []
