@@ -61,20 +61,25 @@ class ContractWrapper:
                         def funct(name):
                             def func(*args, **kwargs):
                                 tx_receipt = None
-                                data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
+                                for i in range(20):
+                                    try:
+                                        data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
 
-                                tx = {
-                                    'to': contract.address,
-                                    'value': 0,
-                                    'gas': 1000000,
-                                    'gasPrice': gas_price,
-                                    'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount),
-                                    'data': data
-                                }
+                                        tx = {
+                                            'to': contract.address,
+                                            'value': 0,
+                                            'gas': 1000000,
+                                            'gasPrice': gas_price,
+                                            'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount),
+                                            'data': data
+                                        }
 
-                                signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
-                                tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
-                                tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                        signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+                                        tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
+                                        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                        break
+                                    except:
+                                        sleep(8)
                                 return tx_receipt
 
                             return func
