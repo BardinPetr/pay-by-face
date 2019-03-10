@@ -77,7 +77,7 @@ class ContractWrapper:
                                         break
                                     except Exception as ex:
                                         if str(ex).find('Insufficient funds') != -1:
-                                            raise Exception('Low balance')
+                                            return -666
                                         sleep(8)
                                 return tx_receipt
 

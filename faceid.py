@@ -232,7 +232,7 @@ def gift(a):
 
     try:
         res = contract.create(int(exp_date.timestamp()), value=value)
-        #print(res['logs'][0])
+        # print(res['logs'][0])
     except Exception as ex:
         print(ex)
         print("No funds to create a certificate")
