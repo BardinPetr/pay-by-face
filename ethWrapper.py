@@ -38,7 +38,10 @@ class ContractWrapper:
 
                     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
                     break
-                except:
+                except Exception as ex:
+                    if str(ex).find('-32010') != -1:
+                        raise Exception('Low balance')
+                        break
                     sleep(8)
             return tx_receipt
 
