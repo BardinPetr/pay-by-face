@@ -1,22 +1,8 @@
 [
 	{
 		"constant": false,
-		"inputs": [
-			{
-				"name": "hash",
-				"type": "bytes32"
-			}
-		],
-		"name": "use",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
 		"inputs": [],
-		"name": "withdraw",
+		"name": "renounceOwnership",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -24,13 +10,22 @@
 	},
 	{
 		"constant": true,
-		"inputs": [
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
 			{
-				"name": "hash",
-				"type": "bytes32"
+				"name": "",
+				"type": "address"
 			}
 		],
-		"name": "can_use",
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "isOwner",
 		"outputs": [
 			{
 				"name": "",
@@ -45,52 +40,14 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "expire_date",
-				"type": "uint256"
+				"name": "newOwner",
+				"type": "address"
 			}
 		],
-		"name": "create",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "hash",
-				"type": "bytes32"
-			}
-		],
-		"name": "get",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
+		"name": "transferOwnership",
+		"outputs": [],
 		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "can_withdraw",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -104,47 +61,16 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "id",
-				"type": "bytes32"
-			}
-		],
-		"name": "CertificateWithdrew",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
+				"name": "previousOwner",
+				"type": "address"
+			},
 			{
 				"indexed": true,
-				"name": "id",
-				"type": "bytes32"
+				"name": "newOwner",
+				"type": "address"
 			}
 		],
-		"name": "CertificateCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "id",
-				"type": "bytes32"
-			}
-		],
-		"name": "CertificateUsed",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [],
-		"name": "CertificateWithdrewAll",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [],
-		"name": "CertificateUsageFailed",
+		"name": "OwnershipTransferred",
 		"type": "event"
 	}
 ]
