@@ -40,6 +40,7 @@ class ContractWrapper:
                     break
                 except Exception as ex:
                     if str(ex).find('-32010') != -1:
+                        print(ex)
                         raise Exception('Low balance')
                         break
                     sleep(8)
