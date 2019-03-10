@@ -22,6 +22,8 @@ def get(phone_number):
 def confirm(addr):
     try:
         _datafile = parceJson('network.json')
+        if 'privKey' not in _datafile.keys():
+            return print("No admin account found")
         ethWrapper.user_priv_key = _datafile['privKey']
         web3.eth.defaultAccount = toAddress(_datafile['privKey'])
     except TypeError:
