@@ -57,28 +57,31 @@ class ContractWrapper:
                         def funct(name):
                             def func(*args, **kwargs):
                                 tx_receipt = None
-                                for i in range(20):
+                                value = 0 if 'value' not in kwargs.keys() else kwargs.pop('value')
+                                data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
+
+                                tx = {
+                                    'to': contract.address,
+                                    'value': value,
+                                    'gas': 1000000,
+                                    'gasPrice': gas_price,
+                                    'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount),
+                                    'data': data
+                                }
+
+                                signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+
+                                tx_receipt = None
+                                for i in range(10):
                                     try:
-                                        value = 0 if 'value' not in kwargs.keys() else kwargs.pop('value')
-                                        data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
-
-                                        tx = {
-                                            'to': contract.address,
-                                            'value': value,
-                                            'gas': 1000000,
-                                            'gasPrice': gas_price,
-                                            'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount),
-                                            'data': data
-                                        }
-
-                                        signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
                                         tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
                                         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
                                         break
                                     except Exception as ex:
                                         if str(ex).find('Insufficient funds') != -1:
                                             return -666
-                                        sleep(8)
+                                        sleep(4)
+
                                 return tx_receipt
 
                             return func
