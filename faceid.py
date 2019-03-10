@@ -134,8 +134,8 @@ def send_cancel_user(args):
 
     try:
         res = contract.cancel()
-        print(("R" if mode else "Unr")
-              + "egistration canceled by", res.transactionHash.hex())
+        print(("R" if mode else "Unr") +
+              "egistration canceled by", res.transactionHash.hex())
     except:
         print("No funds to send the request")
 
@@ -168,7 +168,7 @@ def send(a):
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
         try:
-            registrar.sending_point(val, sendto_addr, phone, registrar.getByAddr(addr))
+            registrar.sending_point(val, phone, registrar.getByAddr(addr))
 
             transaction = {
                 'from': addr,
@@ -248,38 +248,40 @@ def ops(a):
             'startblock': regstr['startBlock']}).json()['result']
 
         contract_decoder = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
+        registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=regstr['address'])
 
         history = []
         for tx in response:
+            # addr_from = web3.toChecksumAddress(tx['from'])
             try:
-                addr_from = web3.toChecksumAddress(tx['from'])
+                my_phone = registrar.getByAddr(my_addr)
+            except:
+                print('Seems that the contract address is not the certificates contract.')
+                return
+
+            func_name = ''
+            try:
                 decoded_inp = contract_decoder.decode_function_input(tx['input'])
                 func_name = type(decoded_inp[0]).__name__
-
+            except:
+                pass
+            else:
                 if func_name == 'sending_point':
                     func_args = decoded_inp[1]
 
                     send_type = ''
                     phone = ''
-                    if addr_from == my_addr:
+                    if func_args['from_phone'] == my_phone:
                         phone = func_args['to_phone']
                         send_type = 'TO:'
 
-                    elif func_args['to_addr'] == my_addr:
+                    elif func_args['to_phone'] == my_phone:
                         phone = func_args['from_phone']
                         send_type = 'FROM:'
 
                     val, tp = weighing(func_args['val'])
                     timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
                     history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
-
-            except Exception as ex:
-                pass
-                # if str(ex) == 'Could not find any function with matching selector':
-                #    pass
-                # else:
-                #    print('Seems that the contract address is not the certificates contract.')
-                #    return
 
     if len(history) == 0:
         print('No operations found')
