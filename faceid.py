@@ -40,11 +40,7 @@ def send_add_user(args):
         print("ID is not found")
         return
     if len(args) > 1 and re.match("^\+\d{11}$", args[1]):
-        data = None
-        try:
-            data = parceJson('registrar.json')
-            _ = data['registrar']
-        except:
+        if contracts_data is None:
             print("No contract address")
             return
 
@@ -52,7 +48,7 @@ def send_add_user(args):
         try:
             ethWrapper.user_priv_key = pk
             web3.eth.defaultAccount = addr
-            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
             if contract.isInAddPending():
                 print("Registration request already sent")
                 return
@@ -82,11 +78,7 @@ def send_del_user(args):
         print("ID is not found")
         return
 
-    data = None
-    try:
-        data = parceJson('registrar.json')
-        _ = data['registrar']
-    except:
+    if contracts_data is None:
         print("No contract address")
         return
 
@@ -94,7 +86,7 @@ def send_del_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         if contract.getByAddr(addr) == "":
             print("Account is not registered yet")
             return
@@ -121,11 +113,7 @@ def send_cancel_user(args):
         print("ID is not found")
         return
 
-    data = None
-    try:
-        data = parceJson('registrar.json')
-        _ = data['registrar']
-    except:
+    if contracts_data is None:
         print("No contract address")
         return
 
@@ -133,7 +121,7 @@ def send_cancel_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         mode = contract.isInAddPending()
         if not mode and not contract.isInDelPending():
             print("No requests found")
@@ -162,6 +150,10 @@ def send(a):
         addr = toAddress(priv_key)
     except:
         print("ID is not found")
+        return
+
+    if contracts_data is None:
+        print("No contract address")
         return
 
     ethWrapper.user_priv_key = priv_key
@@ -225,8 +217,13 @@ def idetify_person(video):
 
 
 def ops(a):
-    pvk = get_private_key(parceJson('person.json')['id'], a[0])
-    addr = toAddress(pvk)
+    pvk, addr = None, None
+    try:
+        pvk = get_private_key(parceJson('person.json')['id'], a[0])
+        addr = toAddress(pvk)
+    except:
+        print("ID is not found")
+        return
 
     response = getData('https://blockscout.com/poa/sokol/api', params={
         'module': 'account',
@@ -241,6 +238,7 @@ def ops(a):
 
         if func_name == 'send_point':
             print(response[0])
+
 
 
 commands = {
