@@ -47,15 +47,15 @@ contract KYCContract {
         owner = msg.sender;
     }
 
-    function add(string memory phone) public returns (bool) {
-        require (!data[phone].isUsed && !waitingAddition[msg.sender].isUsed && matches(phone));
-        addWaitingPhones.push(User({ addr: msg.sender, phone: phone, isUsed: true }));
-        waitingAddition[msg.sender] = ApprovementWaiting({ arrayIndex: addWaitingPhones.length - 1, isUsed: true });
-        emit RegistrationRequest(msg.sender);
+    function add(string memory phone, address addr) public returns (bool) {
+        require (!data[phone].isUsed && !waitingAddition[addr].isUsed && matches(phone));
+        addWaitingPhones.push(User({ addr: addr, phone: phone, isUsed: true }));
+        waitingAddition[addr] = ApprovementWaiting({ arrayIndex: addWaitingPhones.length - 1, isUsed: true });
+        emit RegistrationRequest(addr);
         return true;
     }
 
-    function dlt() public returns (bool) {
+    function dlt(address addr) public returns (bool) {
         address snd = msg.sender;
         require (!waitingDeletion[snd].isUsed &&
             dataPhones[snd].isUsed);

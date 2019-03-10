@@ -48,8 +48,6 @@ def send_add_user(args):
 
         contract = None
         try:
-            ethWrapper.user_priv_key = pk
-            web3.eth.defaultAccount = addr
             contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
             if contract.isInAddPending():
                 print("Registration request already sent")
