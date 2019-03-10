@@ -230,6 +230,32 @@
 	},
 	{
 		"constant": true,
+		"inputs": [
+			{
+				"name": "val",
+				"type": "uint256"
+			},
+			{
+				"name": "to_addr",
+				"type": "address"
+			},
+			{
+				"name": "to_phone",
+				"type": "string"
+			},
+			{
+				"name": "from_phone",
+				"type": "string"
+			}
+		],
+		"name": "sending_point",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [],
 		"name": "isOwner",
 		"outputs": [
@@ -337,28 +363,6 @@
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "val",
-				"type": "uint256"
-			},
-			{
-				"name": "addr",
-				"type": "address"
-			},
-			{
-				"name": "phone",
-				"type": "string"
-			}
-		],
-		"name": "sending_point",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "pure",
 		"type": "function"
 	},
 	{

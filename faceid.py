@@ -50,8 +50,7 @@ def send_add_user(args):
         try:
             ethWrapper.user_priv_key = pk
             web3.eth.defaultAccount = addr
-            contract = ContractWrapper(
-                w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
             if contract.isInAddPending():
                 print("Registration request already sent")
                 return
@@ -89,8 +88,7 @@ def send_del_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(
-            w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         if contract.getByAddr(addr) == "":
             print("Account is not registered yet")
             return
@@ -125,8 +123,7 @@ def send_cancel_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(
-            w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         mode = contract.isInAddPending()
         if not mode and not contract.isInDelPending():
             print("No requests found")
@@ -170,7 +167,7 @@ def send(a):
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
         try:
-            registrar.sending_point(val, sendto_addr, phone)
+            registrar.sending_point(val, sendto_addr, phone, registrar.get(addr))
 
             transaction = {
                 'to': sendto_addr,
@@ -189,11 +186,13 @@ def send(a):
 
             print('Payment of {} {} to {} scheduled'.format(val, tp, phone))
             print('Transaction Hash: ' + web3.toHex(tx_hash))
+
         except Exception as e:
             if str(e) == 'Low balance':
                 print('No funds to send the payment')
             else:
                 print(e)
+                return
     else:
         print('No account with the phone number: ' + phone)
 
@@ -227,10 +226,10 @@ def idetify_person(video):
 
 
 def ops(a):
-    pvk, addr = None, None
+    pvk, my_addr = None, None
     try:
         pvk = get_private_key(parceJson('person.json')['id'], a[0])
-        addr = toAddress(pvk)
+        my_my_addr = toAddress(pvk)
     except:
         print("ID is not found")
         return
@@ -246,33 +245,39 @@ def ops(a):
             'address': regstr['address'],
             'startblock': regstr['startBlock']}).json()['result']
 
-        registrar = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
+        contract_decoder = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
 
         history = []
         for tx in response:
             try:
                 addr_from = web3.toChecksumAddress(tx['from'])
-                decoded_inp = registrar.decode_function_input(tx['input'])
+                decoded_inp = contract_decoder.decode_function_input(tx['input'])
                 func_name = type(decoded_inp[0]).__name__
                 if func_name == 'sending_point':
                     func_args = decoded_inp[1]
 
                     i_can = False
-                    if addr_from == addr:
-                        phone = registrar.getByAddr(addr_from)
-                        send_type = 'FROM:'
-                        i_can = True
-                    elif func_args['addr'] == addr:
-                        phone = registrar.getByAddr(addr_from)
+                    if addr_from == my_addr:
+                        phone = func_args['to_phone']
                         send_type = 'TO:'
+                        i_can = True
+                    elif func_args['to_addr'] == my_addr:
+                        phone = func_args['from_phone']
+                        send_type = 'FROM:'
                         i_can = True
 
                     if i_can:
                         val, tp = weighing(func_args['val'])
                         timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
                         history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
-            except:
-                pass
+
+            except Exception as ex:
+                print(ex)
+                if str(ex) == 'Could not find any function with matching selector':
+                    pass
+                else:
+                    print('Seems that the contract address is not the certificates contract.')
+                    return
 
     if len(history) == 0:
         print('No operations found')
