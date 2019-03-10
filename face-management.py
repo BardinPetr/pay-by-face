@@ -46,8 +46,12 @@ def create_person(*args, simple=True):
             length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             cap.release()
             starts = [[] for _ in range(7)]
-            for ind, i in enumerate(range(0, length, length // 7)):
+            for ind, i in enumerate(range(0, length, length // 6)):
                 starts[ind] = i
+            if not starts[4]:
+                starts[4] = length * 0.66
+            if not starts[5]:
+                starts[5] = length * 0.8
             if not starts[6]:
                 starts[6] = length - 1
             params = []
@@ -140,7 +144,7 @@ def create_frames_hard(args):
         if length < 5:
             return False
         cap.release()
-        for i in range(start, start + length // 6):
+        for i in range(start, start + length // 7):
             cap = cv2.VideoCapture(video)
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
             im_frame = cap.read()[1]
