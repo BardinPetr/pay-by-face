@@ -196,7 +196,7 @@ contract KYCContract {
     }
 
     // I don't know what that shit is this but it will not work without it
-    function sending_point(uint val, address addr) pure public {
+    function sending_point(uint val, string memory to_phone, string memory from_phone) pure public {
         return;
     }
 

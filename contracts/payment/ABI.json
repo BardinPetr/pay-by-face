@@ -1,8 +1,22 @@
 [
 	{
 		"constant": false,
+		"inputs": [
+			{
+				"name": "hash",
+				"type": "bytes32"
+			}
+		],
+		"name": "use",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
 		"inputs": [],
-		"name": "renounceOwnership",
+		"name": "withdraw",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -10,22 +24,13 @@
 	},
 	{
 		"constant": true,
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
+		"inputs": [
 			{
-				"name": "",
-				"type": "address"
+				"name": "hash",
+				"type": "bytes32"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "isOwner",
+		"name": "can_use",
 		"outputs": [
 			{
 				"name": "",
@@ -40,14 +45,52 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "newOwner",
-				"type": "address"
+				"name": "expire_date",
+				"type": "uint256"
 			}
 		],
-		"name": "transferOwnership",
-		"outputs": [],
+		"name": "create",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "hash",
+				"type": "bytes32"
+			}
+		],
+		"name": "get",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "can_withdraw",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -61,16 +104,47 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "previousOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"name": "newOwner",
-				"type": "address"
+				"name": "id",
+				"type": "bytes32"
 			}
 		],
-		"name": "OwnershipTransferred",
+		"name": "CertificateWithdrew",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "id",
+				"type": "bytes32"
+			}
+		],
+		"name": "CertificateCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "id",
+				"type": "bytes32"
+			}
+		],
+		"name": "CertificateUsed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "CertificateWithdrewAll",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "CertificateUsageFailed",
 		"type": "event"
 	}
 ]
