@@ -81,24 +81,6 @@
 	},
 	{
 		"constant": true,
-		"inputs": [
-			{
-				"name": "val",
-				"type": "uint256"
-			},
-			{
-				"name": "phone",
-				"type": "string"
-			}
-		],
-		"name": "sending_point",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "pure",
-		"type": "function"
-	},
-	{
-		"constant": true,
 		"inputs": [],
 		"name": "regex",
 		"outputs": [
@@ -367,6 +349,10 @@
 			{
 				"name": "addr",
 				"type": "address"
+			},
+			{
+				"name": "phone",
+				"type": "string"
 			}
 		],
 		"name": "sending_point",

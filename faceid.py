@@ -8,6 +8,7 @@ from tools import *
 import ethWrapper
 from requests import get as getData
 import re
+from time import sleep
 from datetime import datetime
 
 ### Put your code below this comment ###
@@ -49,7 +50,8 @@ def send_add_user(args):
         try:
             ethWrapper.user_priv_key = pk
             web3.eth.defaultAccount = addr
-            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+            contract = ContractWrapper(
+                w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
             if contract.isInAddPending():
                 print("Registration request already sent")
                 return
@@ -87,7 +89,8 @@ def send_del_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+        contract = ContractWrapper(
+            w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         if contract.getByAddr(addr) == "":
             print("Account is not registered yet")
             return
@@ -122,7 +125,8 @@ def send_cancel_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
+        contract = ContractWrapper(
+            w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         mode = contract.isInAddPending()
         if not mode and not contract.isInDelPending():
             print("No requests found")
@@ -132,7 +136,8 @@ def send_cancel_user(args):
 
     try:
         res = contract.cancel()
-        print(("R" if mode else "Unr") + "egistration canceled by", res.transactionHash.hex())
+        print(("R" if mode else "Unr") +
+              "egistration canceled by", res.transactionHash.hex())
     except:
         print("No funds to send the request")
 
@@ -140,7 +145,7 @@ def send_cancel_user(args):
 def send(a):
     pin = a[0]
     phone = a[1]
-    val = a[2]
+    val = int(a[2])
 
     if not re.match("^\+\d{11}$", phone):
         print("Incorrect phone number")
@@ -161,18 +166,16 @@ def send(a):
     web3.eth.defaultAccount = addr
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
-    # crack me!!!
-    # (backdoor) ----
-    registrar.sending_point(val, addr)
-    # ----
     sendto_addr = registrar.get(phone)
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
         try:
+            registrar.sending_point(val, sendto_addr, phone)
+
             transaction = {
                 'to': sendto_addr,
-                'value': int(val),
-                'gas': 21000,
+                'value': val,
+                'gas': 24000,
                 'gasPrice': gas_price,
                 'nonce': web3.eth.getTransactionCount(web3.eth.defaultAccount)
             }
@@ -234,15 +237,13 @@ def ops(a):
     except:
         print('No contract address')
     else:
-        try:
         response = getData('https://blockscout.com/poa/sokol/api', params={
             'module': 'account',
             'action': 'txlist',
             'address': regstr['address'],
             'startblock': regstr['startBlock']}).json()['result']
 
-            registrar = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
-
+        registrar = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
 
         history = []
         for tx in response:
@@ -269,7 +270,6 @@ def ops(a):
                         history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
             except:
                 pass
-
 
     if len(history) == 0:
         print('No operations found')
