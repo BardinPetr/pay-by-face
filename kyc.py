@@ -46,10 +46,14 @@ def confirm(addr):
         return
 
     try:
+        # FIXME: floating err
         res = contract.approve(addr)
         print("Confirmed by" if res.status else "Failed but included in", res.transactionHash.hex())
-    except:
-        print("No funds to send the request")
+    except Exception as ex:
+        if str(ex) == 'Low balance':
+            print("No funds to send the request")
+        else:
+            print(ex)
 
 
 def list(list_name):

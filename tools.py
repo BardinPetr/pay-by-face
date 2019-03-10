@@ -1,10 +1,16 @@
-import dlib
+try:
+    import dlib
+except:
+    pass
 
 from eth_account import Account
 from math import ceil
 from json import load
 
-from imutils import face_utils
+try:
+    from imutils import face_utils
+except:
+    pass
 from web3 import Web3, HTTPProvider
 import uuid
 import sha3
@@ -170,7 +176,7 @@ def get_open_eyes(frame):
         left_ear = eye_aspect_ratio(left_eye)
         right_ear = eye_aspect_ratio(right_eye)
         if right_ear < eye_ar_thresh:
-           eyes[1] = True
+            eyes[1] = True
         if left_ear < eye_ar_thresh:
             eyes[0] = True
     return eyes
@@ -245,7 +251,7 @@ def check_right_rotation(image, right_rotation, max_error, type=0):
 def euclidean(p, q):
     sum_sq = 0.0
     for i in range(len(p)):
-        sum_sq += (p[i]-q[i])**2
+        sum_sq += (p[i] - q[i])**2
     return sum_sq ** 0.5
 
 

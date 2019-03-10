@@ -4,8 +4,6 @@ from tools import parceJson, toAddress
 from web3 import Web3, HTTPProvider
 import os
 
-
-
 # === Init === #
 _datafile = parceJson('network.json')
 
@@ -14,9 +12,12 @@ try:
 except:
     ethWrapper.gas_price = int(_datafile['defaultGasPrice'])
 
-web3 = Web3(HTTPProvider(_datafile['rpcUrl']))
-ethWrapper.user_priv_key = _datafile['privKey']
-web3.eth.defaultAccount = toAddress(_datafile['privKey'])
+try:
+    web3 = Web3(HTTPProvider(_datafile['rpcUrl']))
+    ethWrapper.user_priv_key = _datafile['privKey']
+    web3.eth.defaultAccount = toAddress(_datafile['privKey'])
+except:
+    pass
 
 registrar_ABI = parceJson('contracts/registrar/ABI.json')
 registrar_BYTECODE = parceJson('contracts/registrar/bytecode.json')['object']
@@ -24,5 +25,5 @@ registrar_BYTECODE = parceJson('contracts/registrar/bytecode.json')['object']
 payment_ABI = parceJson('contracts/payment/ABI.json')
 payment_BYTECODE = parceJson('contracts/payment/bytecode.json')['object']
 
-if os.path.exists('registrar.json'):
-    contracts_data = parceJson('registrar.json')
+
+contracts_data = parceJson('registrar.json')
