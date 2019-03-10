@@ -33,13 +33,14 @@ class ContractWrapper:
                         'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
                     })
 
-                    signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+                    signed = w3.eth.account.signTransaction(
+                        tx, private_key=user_priv_key)
                     tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
                     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
                     break
                 except:
-                    pass
+                    sleep(8)
             return tx_receipt
 
         setattr(self, 'constructor', construct)
@@ -62,7 +63,8 @@ class ContractWrapper:
                                 tx_receipt = None
                                 for i in range(20):
                                     try:
-                                        data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
+                                        data = contract.encodeABI(
+                                            fn_name=name, args=args, kwargs=kwargs)
 
                                         tx = {
                                             'to': contract.address,
@@ -73,9 +75,12 @@ class ContractWrapper:
                                             'data': data
                                         }
 
-                                        signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
-                                        tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
-                                        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                                        signed = w3.eth.account.signTransaction(
+                                            tx, private_key=user_priv_key)
+                                        tx_hash = w3.eth.sendRawTransaction(
+                                            signed.rawTransaction)
+                                        tx_receipt = w3.eth.waitForTransactionReceipt(
+                                            tx_hash)
                                         break
                                     except:
                                         sleep(8)

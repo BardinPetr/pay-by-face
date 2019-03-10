@@ -41,11 +41,7 @@ def send_add_user(args):
         print("ID is not found")
         return
     if len(args) > 1 and re.match("^\+\d{11}$", args[1]):
-        data = None
-        try:
-            data = parceJson('registrar.json')
-            _ = data['registrar']
-        except:
+        if contracts_data is None:
             print("No contract address")
             return
 
@@ -53,7 +49,7 @@ def send_add_user(args):
         try:
             ethWrapper.user_priv_key = pk
             web3.eth.defaultAccount = addr
-            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
             if contract.isInAddPending():
                 print("Registration request already sent")
                 return
@@ -77,11 +73,7 @@ def send_add_user(args):
 def send_del_user(args):
     addr, pk = None, None
 
-    data = None
-    try:
-        data = parceJson('registrar.json')
-        _ = data['registrar']
-    except:
+    if contracts_data is None:
         print("No contract address")
         return
 
@@ -96,7 +88,7 @@ def send_del_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         if contract.getByAddr(addr) == "":
             print("Account is not registered yet")
             return
@@ -123,11 +115,7 @@ def send_cancel_user(args):
         print("ID is not found")
         return
 
-    data = None
-    try:
-        data = parceJson('registrar.json')
-        _ = data['registrar']
-    except:
+    if contracts_data is None:
         print("No contract address")
         return
 
@@ -135,7 +123,7 @@ def send_cancel_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         mode = contract.isInAddPending()
         if not mode and not contract.isInDelPending():
             print("No requests found")
@@ -164,6 +152,10 @@ def send(a):
         addr = toAddress(priv_key)
     except:
         print("ID is not found")
+        return
+
+    if contracts_data is None:
+        print("No contract address")
         return
 
     ethWrapper.user_priv_key = priv_key
@@ -230,43 +222,56 @@ def idetify_person(video):
 
 
 def ops(a):
-    pvk = get_private_key(parceJson('person.json')['id'], a[0])
-    addr = toAddress(pvk)
+    pvk, addr = None, None
+    try:
+        pvk = get_private_key(parceJson('person.json')['id'], a[0])
+        addr = toAddress(pvk)
+    except:
+        print("ID is not found")
+        return
 
-    response = getData('https://blockscout.com/poa/sokol/api', params={
-        'module': 'account',
-        'action': 'txlist',
-        'address': parceJson('registrar.json')['registrar']['address'],
-        'startblock': parceJson('registrar.json')['registrar']['startBlock']}).json()['result']
-
-    registrar = web3.eth.contract(abi=registrar_ABI)
-
-    history = []
-    for tx in response:
+    try:
+        regstr = parceJson('registrar.json')['registrar']
+    except:
+        print('No contract address')
+    else:
         try:
-            addr_from = web3.toChecksumAddress(tx['from'])
-            decoded_inp = registrar.decode_function_input(tx['input'])
-            func_name = type(decoded_inp[0]).__name__
-            if func_name == 'sending_point':
-                func_args = decoded_inp[1]
+            response = getData('https://blockscout.com/poa/sokol/api', params={
+                'module': 'account',
+                'action': 'txlist',
+                'address': regstr['address'],
+                'startblock': regstr['startBlock']}).json()['result']
 
-                i_can = False
-                if addr_from == addr:
-                    phone = registrar.getByAddr(addr_from)
-                    send_type = 'FROM:'
-                    i_can = True
-                elif func_args['addr'] == addr:
-                    phone = registrar.getByAddr(addr_from)
-                    send_type = 'TO:'
-                    i_can = True
-
-                if i_can:
-                    val, tp = weighing(func_args['val'])
-                    timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
-
-                    history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
+            registrar = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
         except:
             pass
+
+        history = []
+        for tx in response:
+            try:
+                addr_from = web3.toChecksumAddress(tx['from'])
+                decoded_inp = registrar.decode_function_input(tx['input'])
+                func_name = type(decoded_inp[0]).__name__
+                if func_name == 'sending_point':
+                    func_args = decoded_inp[1]
+
+                    i_can = False
+                    if addr_from == addr:
+                        phone = registrar.getByAddr(addr_from)
+                        send_type = 'FROM:'
+                        i_can = True
+                    elif func_args['addr'] == addr:
+                        phone = registrar.getByAddr(addr_from)
+                        send_type = 'TO:'
+                        i_can = True
+
+                    if i_can:
+                        val, tp = weighing(func_args['val'])
+                        timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
+                        history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
+            except:
+                pass
+
 
     if len(history) == 0:
         print('No operations found')
@@ -274,6 +279,7 @@ def ops(a):
         print('Operations:')
         for i in history:
             print(i)
+
 
 commands = {
     'balance': request_balance,

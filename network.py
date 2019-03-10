@@ -3,8 +3,6 @@ import ethWrapper
 from tools import parceJson, toAddress
 from web3 import Web3, HTTPProvider
 
-
-
 # === Init === #
 _datafile = parceJson('network.json')
 
@@ -23,4 +21,8 @@ registrar_BYTECODE = parceJson('contracts/registrar/bytecode.json')['object']
 payment_ABI = parceJson('contracts/payment/ABI.json')
 payment_BYTECODE = parceJson('contracts/payment/bytecode.json')['object']
 
-contracts_data = parceJson('registrar.json')
+contracts_data = None
+try:
+    contracts_data = parceJson('registrar.json')
+except:
+    pass
