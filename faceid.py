@@ -63,10 +63,12 @@ def send_add_user(args):
 
         try:
             res = contract.add(args[1])
-            print("Registration request sent by", res.transactionHash.hex())
+            if res == -666:
+                print("No funds to send the request")
+            else:
+                print("Registration request sent by", res.transactionHash.hex())
         except:
             print("No funds to send the request")
-            return
     else:
         print("Incorrect phone number")
 

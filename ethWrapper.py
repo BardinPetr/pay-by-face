@@ -72,7 +72,7 @@ class ContractWrapper:
                                 signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
 
                                 tx_receipt = None
-                                for i in range(10):
+                                for i in range(15):
                                     try:
                                         tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
                                         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
@@ -80,7 +80,9 @@ class ContractWrapper:
                                     except Exception as ex:
                                         if str(ex).find('Insufficient funds') != -1:
                                             return -666
-                                        sleep(4)
+                                        sleep(6)
+                                        if i == 15:
+                                            print(ex)
 
                                 return tx_receipt
 
