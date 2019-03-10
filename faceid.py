@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from network import contracts_data
+from network import contracts_data, payment_ABI
 from ethWrapper import ContractWrapper, gas_price
 from sys import argv
 import json
@@ -198,6 +198,45 @@ def send(a):
         print('No account with the phone number: ' + phone)
 
 
+def gift(a):
+    pin = a[0]
+    value = int(a[1])
+    exp_date = datetime.strptime(a[2], "%H:%M %d.%m.%Y")
+
+    try:
+        priv_key = get_private_key(parceJson('person.json')['id'], pin)
+        addr = toAddress(priv_key)
+    except:
+        print("ID is not found")
+        return
+
+    if contracts_data is None:
+        print("No contract address")
+        return
+
+    contract, mode = None, -1
+    try:
+        ethWrapper.user_priv_key = priv_key
+        web3.eth.defaultAccount = addr
+        contract = ContractWrapper(w3=web3, abi=payment_ABI, address=contracts_data['payments']['address'])
+        if datetime.now() > exp_date:
+            print("Expiration date is invalid")
+            return
+        if get_balance(web3, addr) < value:
+            print("No funds to create a certificate")
+            return
+    except:
+        print("Seems that the contract address is not the certificates contract")
+        return
+
+    try:
+        res = contract.create(int(exp_date.timestamp()), value=value)
+        #print(res['logs'][0])
+    except Exception as ex:
+        print(ex)
+        print("No funds to create a certificate")
+
+
 def idetify_person(video):
     simple = not os.path.exists("actions.json")
     faces = create_frames_simple(video)
@@ -295,7 +334,9 @@ commands = {
     'cancel': send_cancel_user,
     'send': send,
     'find': idetify_person,
-    'ops': ops
+    'ops': ops,
+    'gift': gift,
+    # 'receive': receive_gift
 }
 # === Entry point === #
 if __name__ == '__main__':
