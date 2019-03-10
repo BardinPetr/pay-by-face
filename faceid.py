@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from network import contracts_data
+from network import contracts_data, payment_ABI
 from ethWrapper import ContractWrapper, gas_price
 from sys import argv
 import json
@@ -8,6 +8,7 @@ from tools import *
 import ethWrapper
 from requests import get as getData
 import re
+from time import sleep
 from datetime import datetime
 
 ### Put your code below this comment ###
@@ -41,19 +42,13 @@ def send_add_user(args):
         print("ID is not found")
         return
     if len(args) > 1 and re.match("^\+\d{11}$", args[1]):
-        data = None
-        try:
-            data = parceJson('registrar.json')
-            _ = data['registrar']
-        except:
+        if contracts_data is None:
             print("No contract address")
             return
 
         contract = None
         try:
-            ethWrapper.user_priv_key = pk
-            web3.eth.defaultAccount = addr
-            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+            contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
             if contract.isInAddPending():
                 print("Registration request already sent")
                 return
@@ -66,10 +61,12 @@ def send_add_user(args):
 
         try:
             res = contract.add(args[1])
-            print("Registration request sent by", res.transactionHash.hex())
+            if res == -666:
+                print("No funds to send the request")
+            else:
+                print("Registration request sent by", res.transactionHash.hex())
         except:
             print("No funds to send the request")
-            return
     else:
         print("Incorrect phone number")
 
@@ -77,11 +74,7 @@ def send_add_user(args):
 def send_del_user(args):
     addr, pk = None, None
 
-    data = None
-    try:
-        data = parceJson('registrar.json')
-        _ = data['registrar']
-    except:
+    if contracts_data is None:
         print("No contract address")
         return
 
@@ -96,7 +89,7 @@ def send_del_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         if contract.getByAddr(addr) == "":
             print("Account is not registered yet")
             return
@@ -123,11 +116,7 @@ def send_cancel_user(args):
         print("ID is not found")
         return
 
-    data = None
-    try:
-        data = parceJson('registrar.json')
-        _ = data['registrar']
-    except:
+    if contracts_data is None:
         print("No contract address")
         return
 
@@ -135,17 +124,19 @@ def send_cancel_user(args):
     try:
         ethWrapper.user_priv_key = pk
         web3.eth.defaultAccount = addr
-        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=data['registrar']['address'])
+        contract = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
         mode = contract.isInAddPending()
         if not mode and not contract.isInDelPending():
             print("No requests found")
             return
     except:
         print("Seems that the contract address is not the registrar contract")
+        return
 
     try:
         res = contract.cancel()
-        print(("R" if mode else "Unr") + "egistration canceled by", res.transactionHash.hex())
+        print(("R" if mode else "Unr") +
+              "egistration canceled by", res.transactionHash.hex())
     except:
         print("No funds to send the request")
 
@@ -153,7 +144,7 @@ def send_cancel_user(args):
 def send(a):
     pin = a[0]
     phone = a[1]
-    val = a[2]
+    val = int(a[2])
 
     if not re.match("^\+\d{11}$", phone):
         print("Incorrect phone number")
@@ -166,22 +157,25 @@ def send(a):
         print("ID is not found")
         return
 
+    if contracts_data is None:
+        print("No contract address")
+        return
+
     ethWrapper.user_priv_key = priv_key
     web3.eth.defaultAccount = addr
     registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=contracts_data['registrar']['address'])
 
-    # crack me!!!
-    # (backdoor) ----
-    registrar.sending_point(val, addr)
-    # ----
     sendto_addr = registrar.get(phone)
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
         try:
+            registrar.sending_point(val, phone, registrar.getByAddr(addr))
+
             transaction = {
+                'from': addr,
                 'to': sendto_addr,
-                'value': int(val),
-                'gas': 21000,
+                'value': val,
+                'gas': 24000,
                 'gasPrice': gas_price,
                 'nonce': web3.eth.getTransactionCount(web3.eth.defaultAccount)
             }
@@ -195,10 +189,56 @@ def send(a):
 
             print('Payment of {} {} to {} scheduled'.format(val, tp, phone))
             print('Transaction Hash: ' + web3.toHex(tx_hash))
-        except:
-            print('No funds to send the payment')
+
+        except Exception as e:
+            if str(e) == 'Low balance':
+                print('No funds to send the payment')
+            else:
+                print(e)
+                return
     else:
         print('No account with the phone number: ' + phone)
+
+
+def gift(a):
+    pin = a[0]
+    value = int(a[1])
+    exp_date = datetime.strptime(a[2], "%H:%M %d.%m.%Y")
+
+    try:
+        priv_key = get_private_key(parceJson('person.json')['id'], pin)
+        addr = toAddress(priv_key)
+    except:
+        print("ID is not found")
+        return
+
+    if contracts_data is None:
+        print("No contract address")
+        return
+
+    contract, mode = None, -1
+    try:
+        ethWrapper.user_priv_key = priv_key
+        web3.eth.defaultAccount = addr
+        contract = ContractWrapper(w3=web3, abi=payment_ABI, address=contracts_data['payments']['address'])
+        if datetime.now() > exp_date:
+            print("Expiration date is invalid")
+            return
+        if get_balance(web3, addr) < value:
+            print("No funds to create a certificate")
+            return
+    except:
+        print("Seems that the contract address is not the certificates contract")
+        return
+
+    try:
+        tx_receipt = contract.create(int(exp_date.timestamp()), value=value)
+        res = contract.events.CertificateCreated().processReceipt(tx_receipt)
+        h = res[0].args.id
+        signed_message = web3.eth.account.signHash(h, private_key=priv_key)
+        print(h.hex()[2:] + signed_message.v.to_bytes(2) + signed_message.signature.hex()[2:])
+    except Exception as ex:
+        print("No funds to create a certificate")
 
 
 def idetify_person(video):
@@ -230,43 +270,60 @@ def idetify_person(video):
 
 
 def ops(a):
-    pvk = get_private_key(parceJson('person.json')['id'], a[0])
-    addr = toAddress(pvk)
+    pvk, my_addr = None, None
+    try:
+        pvk = get_private_key(parceJson('person.json')['id'], a[0])
+        my_addr = toAddress(pvk)
+    except:
+        print("ID is not found")
+        return
 
-    response = getData('https://blockscout.com/poa/sokol/api', params={
-        'module': 'account',
-        'action': 'txlist',
-        'address': parceJson('registrar.json')['registrar']['address'],
-        'startblock': parceJson('registrar.json')['registrar']['startBlock']}).json()['result']
+    try:
+        regstr = parceJson('registrar.json')['registrar']
+    except:
+        print('No contract address')
+    else:
+        response = getData('https://blockscout.com/poa/sokol/api', params={
+            'module': 'account',
+            'action': 'txlist',
+            'address': regstr['address'],
+            'startblock': regstr['startBlock']}).json()['result']
 
-    registrar = web3.eth.contract(abi=registrar_ABI)
+        contract_decoder = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
+        registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=regstr['address'])
 
-    history = []
-    for tx in response:
-        try:
-            addr_from = web3.toChecksumAddress(tx['from'])
-            decoded_inp = registrar.decode_function_input(tx['input'])
-            func_name = type(decoded_inp[0]).__name__
-            if func_name == 'sending_point':
-                func_args = decoded_inp[1]
+        history = []
+        for tx in response:
+            # addr_from = web3.toChecksumAddress(tx['from'])
+            try:
+                my_phone = registrar.getByAddr(my_addr)
+            except:
+                print('Seems that the contract address is not the certificates contract.')
+                return
 
-                i_can = False
-                if addr_from == addr:
-                    phone = registrar.getByAddr(addr_from)
-                    send_type = 'FROM:'
-                    i_can = True
-                elif func_args['addr'] == addr:
-                    phone = registrar.getByAddr(addr_from)
-                    send_type = 'TO:'
-                    i_can = True
+            func_name = ''
+            try:
+                decoded_inp = contract_decoder.decode_function_input(tx['input'])
+                func_name = type(decoded_inp[0]).__name__
+            except:
+                pass
+            else:
+                if func_name == 'sending_point':
+                    func_args = decoded_inp[1]
 
-                if i_can:
+                    send_type = ''
+                    phone = ''
+                    if func_args['from_phone'] == my_phone:
+                        phone = func_args['to_phone']
+                        send_type = 'TO:'
+
+                    elif func_args['to_phone'] == my_phone:
+                        phone = func_args['from_phone']
+                        send_type = 'FROM:'
+
                     val, tp = weighing(func_args['val'])
                     timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
-
                     history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
-        except:
-            pass
 
     if len(history) == 0:
         print('No operations found')
@@ -275,6 +332,61 @@ def ops(a):
         for i in history:
             print(i)
 
+
+def generate_actions(none):
+    rotate = ["YawRight", "YawLeft", "RollRight", "RollLeft"]
+    eyes = ["CloseRightEye", "CloseLeftEye"]
+    all = []
+    r = randint(1, 2)
+    if r == 1:
+        r = randint(1, 2)
+        if r == 1:
+            all.append(choice(rotate))
+            r = randint(1, 2)
+            if r == 1:
+                all.append("OpenMouth")
+                all.append(choice(eyes))
+            else:
+                s = choice(eyes)
+                all.append(choice(eyes))
+                eyes.remove(s)
+                all.append(eyes[0])
+        else:
+            s = choice(rotate)
+            all.append(choice)
+            rotate.remove(s)
+            s = choice(rotate)
+            all.append(choice)
+            r = randint(1, 2)
+            if r == 1:
+                all.append("OpenMouth")
+            else:
+                all.append(choice(eyes))
+    else:
+        r = randint(1, 2)
+        if r == 1:
+            all.append(choice(rotate))
+        else:
+            s = choice(rotate)
+            all.append(choice)
+            rotate.remove(s)
+            s = choice(rotate)
+            all.append(choice)
+        r = randint(1, 2)
+        if r == 1:
+            all.append("OpenMouth")
+            all.append(choice(eyes))
+        else:
+            s = choice(eyes)
+            all.append(choice(eyes))
+            eyes.remove(s)
+            all.append(eyes[0])
+    with open('actions.json', 'w') as outfile:
+        json.dump({"actions": all}, outfile)
+
+
+
+
 commands = {
     'balance': request_balance,
     'add': send_add_user,
@@ -282,7 +394,9 @@ commands = {
     'cancel': send_cancel_user,
     'send': send,
     'find': idetify_person,
-    'ops': ops
+    'ops': ops,
+    'gift': gift,
+    'actions': generate_actions
 }
 # === Entry point === #
 if __name__ == '__main__':
