@@ -131,6 +131,7 @@ def send_cancel_user(args):
             return
     except:
         print("Seems that the contract address is not the registrar contract")
+        return
 
     try:
         res = contract.cancel()
@@ -231,8 +232,11 @@ def gift(a):
         return
 
     try:
-        res = contract.create(int(exp_date.timestamp()), value=value)
-        # print(res['logs'][0])
+        tx_receipt = contract.create(int(exp_date.timestamp()), value=value)
+        res = contract.events.CertificateCreated().processReceipt(tx_receipt)
+        h = res[0].args.id.hex()
+        signed_message = web3.eth.account.signHash(h, private_key=priv_key)
+        print(signed_message.signature)
     except Exception as ex:
         print(ex)
         print("No funds to create a certificate")
