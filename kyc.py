@@ -52,6 +52,8 @@ def confirm(addr):
     except Exception as ex:
         if str(ex) == 'Low balance':
             print("No funds to send the request")
+        else:
+            print(ex)
 
 
 def list(list_name):
