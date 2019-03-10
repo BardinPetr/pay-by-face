@@ -1,6 +1,10 @@
+import dlib
+
 from eth_account import Account
 from math import ceil
 from json import load
+
+from imutils import face_utils
 from web3 import Web3, HTTPProvider
 import uuid
 import sha3
@@ -58,7 +62,8 @@ def get_balance_by_priv(web3, priv):
 
 def clear(to):
     for i in range(1, to + 1):
-        os.remove(str(i) + ".jpg")
+        if os.path.exists(str(i) + ".jpg"):
+            os.remove(str(i) + ".jpg")
 
 
 def exist_group(create=False):
@@ -135,6 +140,73 @@ def create_frames_simple(video):
         return face_ids
     else:
         return False
+
+
+def get_open_eyes(frame):
+    eyes = [False, False]
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor("./opt/shape_predictor_68_face_landmarks.dat")
+    rects = detector(gray, 0)
+    eye_ar_thresh = 0.2
+    for ind, rect in enumerate(rects):
+        shape = predictor(gray, rect)
+        shape = face_utils.shape_to_np(shape)
+        (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
+        (rStart, rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
+        left_eye = shape[lStart:lEnd]
+        right_eye = shape[rStart:rEnd]
+        left_ear = eye_aspect_ratio(left_eye)
+        right_ear = eye_aspect_ratio(right_eye)
+        if right_ear < eye_ar_thresh:
+           eyes[1] = True
+        if left_ear < eye_ar_thresh:
+            eyes[0] = True
+    return eyes
+
+
+def get_open_mouth(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor("./opt/shape_predictor_68_face_landmarks.dat")
+    rects = detector(gray, 0)
+    eye_ar_thresh = 0.4
+    for ind, rect in enumerate(rects):
+        shape = predictor(gray, rect)
+        shape = face_utils.shape_to_np(shape)
+        (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["mouth"]
+        mouth_dots = shape[lStart:lEnd]
+        mar = mouth_aspect_ratio(mouth_dots)
+        if mar > eye_ar_thresh:
+            return True
+
+
+def mouth_aspect_ratio(mouth):
+    a = euclidean(mouth[1], mouth[7])
+    b = euclidean(mouth[2], mouth[6])
+    c = euclidean(mouth[3], mouth[5])
+    d = euclidean(mouth[0], mouth[4])
+
+    ear = (a + b + c) / (2.0 * d)
+
+    return ear
+
+
+def eye_aspect_ratio(eye):
+    a = euclidean(eye[1], eye[5])
+    b = euclidean(eye[2], eye[4])
+    c = euclidean(eye[0], eye[3])
+
+    ear = (a + b) / (2.0 * c)
+
+    return ear
+
+
+def euclidean(p, q):
+    sum_sq = 0.0
+    for i in range(len(p)):
+        sum_sq += (p[i]-q[i])**2
+    return sum_sq ** 0.5
 
 
 def get_predict(faces):

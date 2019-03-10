@@ -26,15 +26,14 @@ class ContractWrapper:
         # setup constructor
         def construct(*args, **kwargs):
             tx_receipt = None
-            for i in range(100):
+            for i in range(20):
                 try:
                     tx = contract.constructor(*args, **kwargs).buildTransaction({
                         'gasPrice': gas_price,
                         'nonce': w3.eth.getTransactionCount(w3.eth.defaultAccount)
                     })
 
-                    signed = w3.eth.account.signTransaction(
-                        tx, private_key=user_priv_key)
+                    signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
                     tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
                     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
@@ -63,8 +62,7 @@ class ContractWrapper:
                                 tx_receipt = None
                                 for i in range(20):
                                     try:
-                                        data = contract.encodeABI(
-                                            fn_name=name, args=args, kwargs=kwargs)
+                                        data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
 
                                         tx = {
                                             'to': contract.address,
@@ -75,14 +73,14 @@ class ContractWrapper:
                                             'data': data
                                         }
 
-                                        signed = w3.eth.account.signTransaction(
-                                            tx, private_key=user_priv_key)
-                                        tx_hash = w3.eth.sendRawTransaction(
-                                            signed.rawTransaction)
-                                        tx_receipt = w3.eth.waitForTransactionReceipt(
-                                            tx_hash)
+                                        signed = w3.eth.account.signTransaction(tx, private_key=user_priv_key)
+                                        tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
+                                        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
                                         break
-                                    except:
+                                    except Exception as ex:
+                                        if str(ex).find('-32010') != -1:
+                                            raise Exception('Low balance')
+                                            break
                                         sleep(8)
                                 return tx_receipt
 

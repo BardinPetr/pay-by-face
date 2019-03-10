@@ -2,6 +2,7 @@ from requests import get as getData
 import ethWrapper
 from tools import parceJson, toAddress
 from web3 import Web3, HTTPProvider
+import os
 
 # === Init === #
 _datafile = parceJson('network.json')
