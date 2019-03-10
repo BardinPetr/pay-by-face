@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from network import contracts_data
+from network import contracts_data, payment_ABI
 from ethWrapper import ContractWrapper, gas_price
 from sys import argv
 import json
@@ -63,10 +63,12 @@ def send_add_user(args):
 
         try:
             res = contract.add(args[1])
-            print("Registration request sent by", res.transactionHash.hex())
+            if res == -666:
+                print("No funds to send the request")
+            else:
+                print("Registration request sent by", res.transactionHash.hex())
         except:
             print("No funds to send the request")
-            return
     else:
         print("Incorrect phone number")
 
@@ -131,6 +133,7 @@ def send_cancel_user(args):
             return
     except:
         print("Seems that the contract address is not the registrar contract")
+        return
 
     try:
         res = contract.cancel()
@@ -168,9 +171,10 @@ def send(a):
 
     if sendto_addr != '0x0000000000000000000000000000000000000000':
         try:
-            registrar.sending_point(val, sendto_addr, phone, registrar.get(addr))
+            registrar.sending_point(val, phone, registrar.getByAddr(addr))
 
             transaction = {
+                'from': addr,
                 'to': sendto_addr,
                 'value': val,
                 'gas': 24000,
@@ -196,6 +200,48 @@ def send(a):
                 return
     else:
         print('No account with the phone number: ' + phone)
+
+
+def gift(a):
+    pin = a[0]
+    value = int(a[1])
+    exp_date = datetime.strptime(a[2], "%H:%M %d.%m.%Y")
+
+    try:
+        priv_key = get_private_key(parceJson('person.json')['id'], pin)
+        addr = toAddress(priv_key)
+    except:
+        print("ID is not found")
+        return
+
+    if contracts_data is None:
+        print("No contract address")
+        return
+
+    contract, mode = None, -1
+    try:
+        ethWrapper.user_priv_key = priv_key
+        web3.eth.defaultAccount = addr
+        contract = ContractWrapper(w3=web3, abi=payment_ABI, address=contracts_data['payments']['address'])
+        if datetime.now() > exp_date:
+            print("Expiration date is invalid")
+            return
+        if get_balance(web3, addr) < value:
+            print("No funds to create a certificate")
+            return
+    except:
+        print("Seems that the contract address is not the certificates contract")
+        return
+
+    try:
+        tx_receipt = contract.create(int(exp_date.timestamp()), value=value)
+        res = contract.events.CertificateCreated().processReceipt(tx_receipt)
+        h = res[0].args.id.hex()
+        signed_message = web3.eth.account.signHash(h, private_key=priv_key)
+        print(signed_message.signature)
+    except Exception as ex:
+        print(ex)
+        print("No funds to create a certificate")
 
 
 def idetify_person(video):
@@ -230,7 +276,7 @@ def ops(a):
     pvk, my_addr = None, None
     try:
         pvk = get_private_key(parceJson('person.json')['id'], a[0])
-        my_my_addr = toAddress(pvk)
+        my_addr = toAddress(pvk)
     except:
         print("ID is not found")
         return
@@ -247,38 +293,40 @@ def ops(a):
             'startblock': regstr['startBlock']}).json()['result']
 
         contract_decoder = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
+        registrar = ContractWrapper(w3=web3, abi=registrar_ABI, address=regstr['address'])
 
         history = []
         for tx in response:
+            # addr_from = web3.toChecksumAddress(tx['from'])
             try:
-                addr_from = web3.toChecksumAddress(tx['from'])
+                my_phone = registrar.getByAddr(my_addr)
+            except:
+                print('Seems that the contract address is not the certificates contract.')
+                return
+
+            func_name = ''
+            try:
                 decoded_inp = contract_decoder.decode_function_input(tx['input'])
                 func_name = type(decoded_inp[0]).__name__
+            except:
+                pass
+            else:
                 if func_name == 'sending_point':
                     func_args = decoded_inp[1]
 
-                    i_can = False
-                    if addr_from == my_addr:
+                    send_type = ''
+                    phone = ''
+                    if func_args['from_phone'] == my_phone:
                         phone = func_args['to_phone']
                         send_type = 'TO:'
-                        i_can = True
-                    elif func_args['to_addr'] == my_addr:
+
+                    elif func_args['to_phone'] == my_phone:
                         phone = func_args['from_phone']
                         send_type = 'FROM:'
-                        i_can = True
 
-                    if i_can:
-                        val, tp = weighing(func_args['val'])
-                        timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
-                        history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
-
-            except Exception as ex:
-                print(ex)
-                if str(ex) == 'Could not find any function with matching selector':
-                    pass
-                else:
-                    print('Seems that the contract address is not the certificates contract.')
-                    return
+                    val, tp = weighing(func_args['val'])
+                    timing = datetime.utcfromtimestamp(int(tx['timeStamp'])).strftime('%H:%M:%S %d.%m.%Y')
+                    history.append('{} {} {} {} {}'.format(timing, send_type, phone, val, tp))
 
     if len(history) == 0:
         print('No operations found')
@@ -288,6 +336,60 @@ def ops(a):
             print(i)
 
 
+def generate_actions(none):
+    rotate = ["YawRight", "YawLeft", "RollRight", "RollLeft"]
+    eyes = ["CloseRightEye", "CloseLeftEye"]
+    all = []
+    r = randint(1, 2)
+    if r == 1:
+        r = randint(1, 2)
+        if r == 1:
+            all.append(choice(rotate))
+            r = randint(1, 2)
+            if r == 1:
+                all.append("OpenMouth")
+                all.append(choice(eyes))
+            else:
+                s = choice(eyes)
+                all.append(choice(eyes))
+                eyes.remove(s)
+                all.append(eyes[0])
+        else:
+            s = choice(rotate)
+            all.append(choice)
+            rotate.remove(s)
+            s = choice(rotate)
+            all.append(choice)
+            r = randint(1, 2)
+            if r == 1:
+                all.append("OpenMouth")
+            else:
+                all.append(choice(eyes))
+    else:
+        r = randint(1, 2)
+        if r == 1:
+            all.append(choice(rotate))
+        else:
+            s = choice(rotate)
+            all.append(choice)
+            rotate.remove(s)
+            s = choice(rotate)
+            all.append(choice)
+        r = randint(1, 2)
+        if r == 1:
+            all.append("OpenMouth")
+            all.append(choice(eyes))
+        else:
+            s = choice(eyes)
+            all.append(choice(eyes))
+            eyes.remove(s)
+            all.append(eyes[0])
+    with open('actions.json', 'w') as outfile:
+        json.dump({"actions": all}, outfile)
+
+
+
+
 commands = {
     'balance': request_balance,
     'add': send_add_user,
@@ -295,7 +397,9 @@ commands = {
     'cancel': send_cancel_user,
     'send': send,
     'find': idetify_person,
-    'ops': ops
+    'ops': ops,
+    'gift': gift,
+    'actions': generate_actions
 }
 # === Entry point === #
 if __name__ == '__main__':
