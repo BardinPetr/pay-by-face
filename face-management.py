@@ -5,6 +5,7 @@ import sys
 from imutils import face_utils
 
 from tools import *
+import multiprocessing
 
 
 api_data = parceJson("faceapi.json")
@@ -16,6 +17,8 @@ g_id = api_data["groupId"]
 
 
 def create_person(*args, simple=True):
+    global video
+    global type
     if simple:
         if create_frames_simple(args[0]):
             exist_group(True)
@@ -36,10 +39,20 @@ def create_person(*args, simple=True):
         else:
             print("Video does not contain any face")
     else:
-        create_frames_hard(args[3], type=3)
+        cap = cv2.VideoCapture(args[3])
+        length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        video = args[3]
+        cap.release()
+        type = 3
+        with multiprocessing.Pool(5) as p:
+            print(p.map(create_frames_hard, list(range(0, length, length // 4))))
+        p.terminate()
+        # create_frames_hard(args[3], type=3)
 
 
-def create_frames_hard(video, type):
+def create_frames_hard(start):
+    global video
+    global type
     types = {1: "roll", 2: "yaw"}
     steps = {1: 15, 2: 20}
     all_nice = []
@@ -51,11 +64,10 @@ def create_frames_hard(video, type):
         if length < 5:
             return False
         cap.release()
-        for i in range(1, length, 2):
+        for i in range(start, start + length // 4):
             cap = cv2.VideoCapture(video)
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
             im_frame = cap.read()[1]
-            print(i)
             if (type == 1) or (type == 2):
                 cv2.imwrite("test.jpg", im_frame)
                 res = check_all_right(cf.face.detect, "test.jpg")
@@ -73,6 +85,7 @@ def create_frames_hard(video, type):
                 rects = detector(gray, 0)
                 eye_ar_thresh = 0.3
                 for ind, rect in enumerate(rects):
+                    print(6)
                     shape = predictor(gray, rect)
                     shape = face_utils.shape_to_np(shape)
                     (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -84,11 +97,13 @@ def create_frames_hard(video, type):
                     if (left_ear > eye_ar_thresh) & (right_ear < eye_ar_thresh) & (not all_nice[0]):
                         cv2.imwrite("left_eye.jpg", gray)
                         all_nice[0] = 1
-                    elif (left_ear < eye_ar_thresh) & (right_ear > eye_ar_thresh) & (not all_nice[0]):
+                    elif (left_ear < eye_ar_thresh) & (right_ear > eye_ar_thresh) & (not all_nice[1]):
                         cv2.imwrite("right_eye.jpg", gray)
                         all_nice[1] = 1
                     if sum(all_nice) == 2:
                         return True
+            else:
+                print("asdasd")
         return face_ids
     else:
         return False
