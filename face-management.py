@@ -46,7 +46,7 @@ def create_person(*args, simple=True):
             length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             cap.release()
             starts = [[] for _ in range(7)]
-            for ind, i in enumerate(range(0, length, length // 7)):
+            for ind, i in enumerate(range(0, length, length // 6)):
                 starts[ind] = i
             if not starts[6]:
                 starts[6] = length - 1
