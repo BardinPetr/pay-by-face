@@ -45,15 +45,16 @@ def create_person(*args, simple=True):
             cap = cv2.VideoCapture(v)
             length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             cap.release()
-            starts = [[] for _ in range(4)]
-            for ind, i in enumerate(range(0, length, length // 3)):
+            starts = [[] for _ in range(7)]
+            for ind, i in enumerate(range(0, length, length // 7)):
                 starts[ind] = i
-            starts[3] = length - 1
+            if not starts[6]:
+                starts[6] = length - 1
             params = []
-            for i in range(4):
+            for i in range(7):
                 params.append([v, num + 1, starts[i]])
             res = False
-            with multiprocessing.Pool(4) as p:
+            with multiprocessing.Pool(7) as p:
                 res = list(p.map(create_frames_hard, params))
             p.terminate()
             clear_files(list(map(lambda x: "test" + str(x) + ".jpg", starts)))
@@ -86,12 +87,14 @@ def create_person(*args, simple=True):
                         return
                 clear_files(paths)
             if len(args) > 2:
-                paths = ["yaw" + str(i) + ".jpg" for i in range(-30, 45, 15)]
+                paths = ["yaw" + str(i) + ".jpg" for i in range(-20, 30, 10)]
                 for path in paths:
                     res = check_all_right(cf.person.add_face, person_id=person_id, person_group_id=g_id, image=path)
                     if res:
                         face_ids.add(res["persistedFaceId"])
                     else:
+                        print("hren")
+                        clear_files(paths)
                         print("Yaw video does not follow requirements")
                         return
                 clear_files(paths)
@@ -137,8 +140,7 @@ def create_frames_hard(args):
         if length < 5:
             return False
         cap.release()
-        for i in range(start, start + length // 4):
-            print(i)
+        for i in range(start, start + length // 6):
             cap = cv2.VideoCapture(video)
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
             im_frame = cap.read()[1]
@@ -210,7 +212,7 @@ def create_frames_hard(args):
                     return True
             else:
                 return False
-        return False
+        return True
     else:
         return False
 
