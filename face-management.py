@@ -39,26 +39,85 @@ def create_person(*args, simple=True):
         else:
             print("Video does not contain any face")
     else:
+        types = {0: "Base", 1: "Roll", 2: "Yaw", 3: "Video to detect open mouth", 4: "Video to detect closed eyes"}
+        multiprocessing.set_start_method('spawn')
         for num, v in enumerate(args):
             cap = cv2.VideoCapture(v)
             length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             cap.release()
-            starts = [[] for _ in range(5)]
-            for ind, i in enumerate(range(0, length, length // 4)):
+            starts = [[] for _ in range(4)]
+            for ind, i in enumerate(range(0, length, length // 3)):
                 starts[ind] = i
-            starts[4] = length - 1
+            starts[3] = length - 1
             params = []
-            for i in range(5):
+            for i in range(4):
                 params.append([v, num + 1, starts[i]])
-            multiprocessing.set_start_method('spawn')
             res = False
-            with multiprocessing.Pool(5) as p:
-                res = p.map(create_frames_hard, params)
+            with multiprocessing.Pool(4) as p:
+                res = list(p.map(create_frames_hard, params))
             p.terminate()
-            cleat_tests(list(map(str, starts)))
-            if not res:
-                print("Base video does not follow requirements")
+            clear_files(list(map(lambda x: "test" + str(x) + ".jpg", starts)))
+            if False in res:
+                print(types[num], "video does not follow requirements")
                 exit()
+        exist_group(True)
+        res = check_all_right(cf.person.create, person_group_id=g_id, name="anonymous")
+        face_ids = set()
+        if res:
+            person_id = res["personId"]
+            face_ids = set()
+            for path in ["normal" + str(i) + ".jpg" for i in range(1, 6)]:
+                res = check_all_right(cf.person.add_face, person_id=person_id, person_group_id=g_id, image=path)
+                if res:
+                    face_ids.add(res["persistedFaceId"])
+                else:
+                    print("Base video does not follow requirements")
+                    clear_files(["normal" + str(i) + ".jpg" for i in range(1, 6)])
+                    return
+            clear_files(["normal" + str(i) + ".jpg" for i in range(1, 6)])
+            if len(args) > 1:
+                paths = ["roll" + str(i) + ".jpg" for i in range(-30, 45, 15)]
+                for path in paths:
+                    res = check_all_right(cf.person.add_face, person_id=person_id, person_group_id=g_id, image=path)
+                    if res:
+                        face_ids.add(res["persistedFaceId"])
+                    else:
+                        print("Roll video does not follow requirements")
+                        return
+                clear_files(paths)
+            if len(args) > 2:
+                paths = ["yaw" + str(i) + ".jpg" for i in range(-30, 45, 15)]
+                for path in paths:
+                    res = check_all_right(cf.person.add_face, person_id=person_id, person_group_id=g_id, image=path)
+                    if res:
+                        face_ids.add(res["persistedFaceId"])
+                    else:
+                        print("Yaw video does not follow requirements")
+                        return
+                clear_files(paths)
+            if len(args) > 3:
+                paths = ["mouth.jpg"]
+                for path in paths:
+                    res = check_all_right(cf.person.add_face, person_id=person_id, person_group_id=g_id, image=path)
+                    if res:
+                        face_ids.add(res["persistedFaceId"])
+                    else:
+                        print("Video to detect open mouth video does not follow requirements")
+                        return
+                clear_files(paths)
+            if len(args) > 4:
+                paths = ["right_eye.jpg", "left_eye.jpg"]
+                for path in paths:
+                    res = check_all_right(cf.person.add_face, person_id=person_id, person_group_id=g_id, image=path)
+                    if res:
+                        face_ids.add(res["persistedFaceId"])
+                    else:
+                        print("Video to detect closed eyes video does not follow requirements")
+                        return
+                clear_files(paths)
+            cf.person_group.update(g_id, user_data="not trained")
+            print(len(face_ids), "frames extracted\nPersonId:", person_id + "\nFaceIds\n=======" + "\n" +
+                  "\n".join(face_ids))
 
 
 def create_frames_hard(args):
@@ -66,7 +125,10 @@ def create_frames_hard(args):
     type = args[1]
     start = args[2]
     types = {1: "normal", 2: "roll", 3: "yaw"}
-    steps = {1: 15, 2: 20}
+    steps = {2: 15, 3: 10}
+    face_ids = []
+    if (type == 2) | (type == 3):
+        rotations = [i for i in range(-steps[type] * 2, steps[type] * 3, steps[type])]
     if os.path.exists(video):
         face_ids = []
         cap = cv2.VideoCapture(video)
@@ -85,27 +147,60 @@ def create_frames_hard(args):
             if type == 1:
                 file = "test" + str(start) + ".jpg"
                 cv2.imwrite(file, im_frame)
-                res = check_all_right(cf.face.detect, file, )
-                if res:
-                    face_ids.append(res[0]["faceId"])
-                else:
-                    clear(i)
-                    return False
+                rot = check_right_rotation(file, [0], 5)
+                good = [0, 1][rot == "0"] + (not get_open_mouth(im_frame)) + sum([g ^ 1 for g in get_open_eyes(im_frame)])
+                if good == 4:
+                    for path in ["normal" + str(g) + ".jpg" for g in range(1, 6)]:
+                        if not os.path.exists(path):
+                            cv2.imwrite(path, im_frame)
+                            break
                 fin = True
-                for path in ["normal" + str(i) + ".jpg" for i in range(1, 6)]:
+                for path in ["normal" + str(g) + ".jpg" for g in range(1, 6)]:
                     if not os.path.exists(path):
                         fin = False
                 if fin:
                     return True
-            elif (type == 2) or (type == 3):
-                cv2.imwrite("test.jpg", im_frame)
-                res = check_all_right(cf.face.detect, "test.jpg")
+            elif type == 2:
+                now_rotations = []
+                for g in rotations:
+                    if not os.path.exists("roll" + str(g) + ".jpg"):
+                        now_rotations.append(g)
+                file = "test" + str(start) + ".jpg"
+                cv2.imwrite(file, im_frame)
+                res = check_right_rotation(file, now_rotations, 3, 1)
                 if res:
-                    face_ids.append(res[0]["faceId"])
-                else:
-                    clear(i)
-                    return False
+                    now_rotations.remove(int(res))
+                    cv2.imwrite("roll" + str(res) + ".jpg", cv2.imread(file))
+                fin = True
+                for path in ["roll" + str(g) + ".jpg" for g in rotations]:
+                    if not os.path.exists(path):
+                        fin = False
+                if fin:
+                    return True
+            elif type == 3:
+                now_rotations = []
+                for g in rotations:
+                    if not os.path.exists("yaw" + str(g) + ".jpg"):
+                        now_rotations.append(g)
+                file = "test" + str(start) + ".jpg"
+                cv2.imwrite(file, im_frame)
+                res = check_right_rotation(file, now_rotations, 3, 2)
+                if res:
+                    now_rotations.remove(int(res))
+                    cv2.imwrite("yaw" + str(res) + ".jpg", cv2.imread(file))
+                fin = True
+                for path in ["yaw" + str(g) + ".jpg" for g in rotations]:
+                    if not os.path.exists(path):
+                        fin = False
+                if fin:
+                    return True
             elif type == 4:
+                res = get_open_mouth(im_frame)
+                if res:
+                    cv2.imwrite("mouth.jpg", im_frame)
+                if os.path.exists("mouth.jpg"):
+                    return True
+            elif type == 5:
                 res = get_open_eyes(im_frame)
                 if res[1]:
                     cv2.imwrite("right_eye.jpg", im_frame)
@@ -114,16 +209,10 @@ def create_frames_hard(args):
                 if os.path.exists("left_eye.jpg") & os.path.exists("right_eye.jpg"):
                     return True
             else:
-                print("asdasd")
-        return face_ids
+                return False
+        return False
     else:
         return False
-
-
-def cleat_tests(names):
-    for name in names:
-        if os.path.exists("test" + name + ".jpg"):
-            os.remove("test" + name + ".jpg")
 
 
 def delete_person(person_id):
@@ -187,7 +276,7 @@ if __name__ == "__main__":
     if sys.argv[1] == "--simple-add":
         create_person(sys.argv[2])
     elif sys.argv[1] == "--add":
-        create_person(*sys.argv[2::2], simple=False)
+        create_person(*sys.argv[2:], simple=False)
     elif sys.argv[1] == "--del":
         delete_person(sys.argv[2])
     elif sys.argv[1] == "--list":
