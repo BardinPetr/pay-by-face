@@ -104,6 +104,7 @@ def check_all_right(func=cf.person_group.lists, *args, **kwargs):
             elif e.status_code == 429:
                 if hasattr(e, 'message'):
                     time.sleep(int(e.message.split("Try again in ")[1].split()[0]))
+                    return check_all_right(func, *args, **kwargs)
         elif hasattr(e, 'code'):
             if e.code == 5:
                 exit()
@@ -218,17 +219,25 @@ def check_right_rotation(image, right_rotation, max_error, type=0):
     check = {0: ["roll", "yaw"], 1: ["roll"], 2: ["yaw"]}
     res = check_all_right(cf.face.detect, image, attributes="headPose")
     rig = 0
+    print(right_rotation)
     if res:
         rot = res[0]["faceAttributes"]["headPose"]
         print(rot)
         for ch in check[type]:
             for right in right_rotation:
-                if (right - max_error) <= rot[ch] <= (right + max_error):
-                    rig = right
-                    return str(rig)
+                if type == 0:
+                    if (right - max_error) <= rot[ch] <= (right + max_error):
+                        pass
+                    else:
+                        return False
                 else:
-                    return False
-        return str(rig)
+                    if (right - max_error) <= rot[ch] <= (right + max_error):
+                        rig = right
+                        return str(rig)
+        if type == 0:
+            return str(rig)
+        else:
+            return False
     else:
         return False
 
