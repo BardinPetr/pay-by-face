@@ -225,10 +225,8 @@ def check_right_rotation(image, right_rotation, max_error, type=0):
     check = {0: ["roll", "yaw"], 1: ["roll"], 2: ["yaw"]}
     res = check_all_right(cf.face.detect, image, attributes="headPose")
     rig = 0
-    print(right_rotation)
     if res:
         rot = res[0]["faceAttributes"]["headPose"]
-        print(rot)
         for ch in check[type]:
             for right in right_rotation:
                 if type == 0:
