@@ -66,6 +66,12 @@ def clear(to):
             os.remove(str(i) + ".jpg")
 
 
+def clear_files(names):
+    for name in names:
+        if os.path.exists(name):
+            os.remove(name)
+
+
 def exist_group(create=False):
     g_id = parceJson("faceapi.json")["groupId"]
     if check_all_right(cf.person_group.get, g_id):
@@ -175,10 +181,12 @@ def get_open_mouth(frame):
         shape = predictor(gray, rect)
         shape = face_utils.shape_to_np(shape)
         (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["mouth"]
+        lStart += 12
         mouth_dots = shape[lStart:lEnd]
         mar = mouth_aspect_ratio(mouth_dots)
         if mar > eye_ar_thresh:
             return True
+    return False
 
 
 def mouth_aspect_ratio(mouth):
@@ -187,9 +195,9 @@ def mouth_aspect_ratio(mouth):
     c = euclidean(mouth[3], mouth[5])
     d = euclidean(mouth[0], mouth[4])
 
-    ear = (a + b + c) / (2.0 * d)
+    mar = (a + b + c) / (2.0 * d)
 
-    return ear
+    return mar
 
 
 def eye_aspect_ratio(eye):
@@ -200,6 +208,24 @@ def eye_aspect_ratio(eye):
     ear = (a + b) / (2.0 * c)
 
     return ear
+
+
+def check_right_rotation(image, right_rotation, max_error, type=0):
+    check = {0: ["roll", "yaw"], 1: ["roll"], 2: ["yaw"]}
+    res = check_all_right(cf.face.detect, image, attributes="headPose")
+    rig = 0
+    if res:
+        rot = res[0]["faceAttributes"]["headPose"]
+        print(rot)
+        for ch in check[type]:
+            for right in right_rotation:
+                if (right - max_error) <= rot[ch] <= (right + max_error):
+                    rig = right
+                else:
+                    return False
+        return str(rig)
+    else:
+        return False
 
 
 def euclidean(p, q):
