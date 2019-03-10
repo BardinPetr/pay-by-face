@@ -235,14 +235,15 @@ def ops(a):
         print('No contract address')
     else:
         try:
-        response = getData('https://blockscout.com/poa/sokol/api', params={
-            'module': 'account',
-            'action': 'txlist',
-            'address': regstr['address'],
-            'startblock': regstr['startBlock']}).json()['result']
+            response = getData('https://blockscout.com/poa/sokol/api', params={
+                'module': 'account',
+                'action': 'txlist',
+                'address': regstr['address'],
+                'startblock': regstr['startBlock']}).json()['result']
 
             registrar = web3.eth.contract(abi=registrar_ABI, address=regstr['address'])
-
+        except:
+            pass
 
         history = []
         for tx in response:
