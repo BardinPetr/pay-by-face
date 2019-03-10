@@ -275,6 +275,11 @@ def ops(a):
         for i in history:
             print(i)
 
+
+def generate_actions():
+    pass
+
+
 commands = {
     'balance': request_balance,
     'add': send_add_user,
@@ -282,7 +287,8 @@ commands = {
     'cancel': send_cancel_user,
     'send': send,
     'find': idetify_person,
-    'ops': ops
+    'ops': ops,
+    'actions': generate_actions
 }
 # === Entry point === #
 if __name__ == '__main__':

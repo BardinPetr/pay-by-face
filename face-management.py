@@ -44,15 +44,15 @@ def create_person(*args, simple=True):
             cap = cv2.VideoCapture(v)
             length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             cap.release()
-            starts = [[] for _ in range(10)]
-            for ind, i in enumerate(range(0, length, length // 9)):
+            starts = [[] for _ in range(5)]
+            for ind, i in enumerate(range(0, length, length // 4)):
                 starts[ind] = i
-            starts[9] = length - 1
+            starts[4] = length - 1
             params = []
             for i in range(10):
                 params.append([v, num + 1, starts[i]])
             res = False
-            with multiprocessing.Pool(10) as p:
+            with multiprocessing.Pool(5) as p:
                 res = list(p.map(create_frames_hard, params))
             p.terminate()
             clear_files(list(map(lambda x: "test" + str(x) + ".jpg", starts)))
@@ -127,6 +127,7 @@ def create_frames_hard(args):
                 file = "test" + str(start) + ".jpg"
                 cv2.imwrite(file, im_frame)
                 res = check_right_rotation(file, now_rotations, 3, 1)
+                print(res)
                 if res:
                     now_rotations.remove(res)
                     cv2.imwrite("roll" + str(res) + ".jpg", cv2.imread(file))

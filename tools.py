@@ -14,6 +14,10 @@ import time
 import cv2
 
 
+from random import choice, randint
+
+
+
 def parceJson(file_path):
     try:
         with open(file_path) as f:
@@ -221,6 +225,7 @@ def check_right_rotation(image, right_rotation, max_error, type=0):
             for right in right_rotation:
                 if (right - max_error) <= rot[ch] <= (right + max_error):
                     rig = right
+                    return str(rig)
                 else:
                     return False
         return str(rig)
