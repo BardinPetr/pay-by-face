@@ -2,6 +2,7 @@ from requests import get as getData
 import ethWrapper
 from tools import parceJson, toAddress
 from web3 import Web3, HTTPProvider
+import os
 
 
 
@@ -23,4 +24,5 @@ registrar_BYTECODE = parceJson('contracts/registrar/bytecode.json')['object']
 payment_ABI = parceJson('contracts/payment/ABI.json')
 payment_BYTECODE = parceJson('contracts/payment/bytecode.json')['object']
 
-contracts_data = parceJson('registrar.json')
+if os.path.exists('registrar.json'):
+    contracts_data = parceJson('registrar.json')

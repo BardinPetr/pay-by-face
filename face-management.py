@@ -39,23 +39,34 @@ def create_person(*args, simple=True):
         else:
             print("Video does not contain any face")
     else:
-        cap = cv2.VideoCapture(args[3])
-        length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        video = args[3]
-        cap.release()
-        type = 3
-        with multiprocessing.Pool(5) as p:
-            print(p.map(create_frames_hard, list(range(0, length, length // 4))))
-        p.terminate()
-        # create_frames_hard(args[3], type=3)
+        for num, v in enumerate(args):
+            cap = cv2.VideoCapture(v)
+            length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            cap.release()
+            starts = [[] for _ in range(5)]
+            for ind, i in enumerate(range(0, length, length // 4)):
+                starts[ind] = i
+            starts[4] = length - 1
+            params = []
+            for i in range(5):
+                params.append([v, num + 1, starts[i]])
+            multiprocessing.set_start_method('spawn')
+            res = False
+            with multiprocessing.Pool(5) as p:
+                res = p.map(create_frames_hard, params)
+            p.terminate()
+            cleat_tests(list(map(str, starts)))
+            if not res:
+                print("Base video does not follow requirements")
+                exit()
 
 
-def create_frames_hard(start):
-    global video
-    global type
-    types = {1: "roll", 2: "yaw"}
+def create_frames_hard(args):
+    video = args[0]
+    type = args[1]
+    start = args[2]
+    types = {1: "normal", 2: "roll", 3: "yaw"}
     steps = {1: 15, 2: 20}
-    all_nice = []
     if os.path.exists(video):
         face_ids = []
         cap = cv2.VideoCapture(video)
@@ -65,10 +76,28 @@ def create_frames_hard(start):
             return False
         cap.release()
         for i in range(start, start + length // 4):
+            print(i)
             cap = cv2.VideoCapture(video)
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
             im_frame = cap.read()[1]
-            if (type == 1) or (type == 2):
+            cv2.imwrite("test" + str(start) + ".jpg", im_frame)
+            cap.release()
+            if type == 1:
+                file = "test" + str(start) + ".jpg"
+                cv2.imwrite(file, im_frame)
+                res = check_all_right(cf.face.detect, file, )
+                if res:
+                    face_ids.append(res[0]["faceId"])
+                else:
+                    clear(i)
+                    return False
+                fin = True
+                for path in ["normal" + str(i) + ".jpg" for i in range(1, 6)]:
+                    if not os.path.exists(path):
+                        fin = False
+                if fin:
+                    return True
+            elif (type == 2) or (type == 3):
                 cv2.imwrite("test.jpg", im_frame)
                 res = check_all_right(cf.face.detect, "test.jpg")
                 if res:
@@ -76,32 +105,14 @@ def create_frames_hard(start):
                 else:
                     clear(i)
                     return False
-                cap.release()
-            elif type == 3:
-                all_nice += [0, 0]
-                gray = cv2.cvtColor(im_frame, cv2.COLOR_BGR2GRAY)
-                detector = dlib.get_frontal_face_detector()
-                predictor = dlib.shape_predictor("./opt/shape_predictor_68_face_landmarks.dat")
-                rects = detector(gray, 0)
-                eye_ar_thresh = 0.3
-                for ind, rect in enumerate(rects):
-                    print(6)
-                    shape = predictor(gray, rect)
-                    shape = face_utils.shape_to_np(shape)
-                    (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
-                    (rStart, rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
-                    left_eye = shape[lStart:lEnd]
-                    right_eye = shape[rStart:rEnd]
-                    left_ear = eye_aspect_ratio(left_eye)
-                    right_ear = eye_aspect_ratio(right_eye)
-                    if (left_ear > eye_ar_thresh) & (right_ear < eye_ar_thresh) & (not all_nice[0]):
-                        cv2.imwrite("left_eye.jpg", gray)
-                        all_nice[0] = 1
-                    elif (left_ear < eye_ar_thresh) & (right_ear > eye_ar_thresh) & (not all_nice[1]):
-                        cv2.imwrite("right_eye.jpg", gray)
-                        all_nice[1] = 1
-                    if sum(all_nice) == 2:
-                        return True
+            elif type == 4:
+                res = get_open_eyes(im_frame)
+                if res[1]:
+                    cv2.imwrite("right_eye.jpg", im_frame)
+                if res[0]:
+                    cv2.imwrite("left_eye.jpg", im_frame)
+                if os.path.exists("left_eye.jpg") & os.path.exists("right_eye.jpg"):
+                    return True
             else:
                 print("asdasd")
         return face_ids
@@ -109,23 +120,10 @@ def create_frames_hard(start):
         return False
 
 
-def euclidean(p, q):
-    sum_sq = 0.0
-    # Суммируем квадраты разностей
-    for i in range(len(p)):
-        sum_sq += (p[i]-q[i])**2
-    # Извлекаем квадратный корень
-    return sum_sq ** 0.5
-
-
-def eye_aspect_ratio(eye):
-    a = euclidean(eye[1], eye[5])
-    b = euclidean(eye[2], eye[4])
-    c = euclidean(eye[0], eye[3])
-
-    ear = (a + b) / (2.0 * c)
-
-    return ear
+def cleat_tests(names):
+    for name in names:
+        if os.path.exists("test" + name + ".jpg"):
+            os.remove("test" + name + ".jpg")
 
 
 def delete_person(person_id):
