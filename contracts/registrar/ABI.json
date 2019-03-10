@@ -358,6 +358,24 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "val",
+				"type": "uint256"
+			},
+			{
+				"name": "addr",
+				"type": "address"
+			}
+		],
+		"name": "sending_point",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
