@@ -61,7 +61,7 @@ class ContractWrapper:
                         def funct(name):
                             def func(*args, **kwargs):
                                 tx_receipt = None
-                                for i in range(1):
+                                for i in range(20):
                                     try:
                                         data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
 
