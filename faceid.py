@@ -234,11 +234,10 @@ def gift(a):
     try:
         tx_receipt = contract.create(int(exp_date.timestamp()), value=value)
         res = contract.events.CertificateCreated().processReceipt(tx_receipt)
-        h = res[0].args.id.hex()
+        h = res[0].args.id
         signed_message = web3.eth.account.signHash(h, private_key=priv_key)
-        print(signed_message.signature)
+        print(h.hex()[2:] + signed_message.v.to_bytes(2) + signed_message.signature.hex()[2:])
     except Exception as ex:
-        print(ex)
         print("No funds to create a certificate")
 
 
