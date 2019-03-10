@@ -61,7 +61,7 @@ class ContractWrapper:
                         def funct(name):
                             def func(*args, **kwargs):
                                 tx_receipt = None
-                                for i in range(20):
+                                for i in range(1):
                                     try:
                                         data = contract.encodeABI(fn_name=name, args=args, kwargs=kwargs)
 
@@ -78,7 +78,10 @@ class ContractWrapper:
                                         tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
                                         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
                                         break
-                                    except:
+                                    except Exception as ex:
+                                        if str(ex).find('-32010') != -1:
+                                            raise Exception('Low balance')
+                                            break
                                         sleep(8)
                                 return tx_receipt
 

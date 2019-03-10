@@ -189,8 +189,11 @@ def send(a):
 
             print('Payment of {} {} to {} scheduled'.format(val, tp, phone))
             print('Transaction Hash: ' + web3.toHex(tx_hash))
-        except:
-            print('No funds to send the payment')
+        except Exception as e:
+            if str(e) == 'Low balance':
+                print('No funds to send the payment')
+            else:
+                print(e)
     else:
         print('No account with the phone number: ' + phone)
 
